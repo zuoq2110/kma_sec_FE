@@ -1,0 +1,13 @@
+.DS_Store
+.babelrc
+.docker/
+.dockerignore
+.env
+.git/
+.gitignore
+.prettierrc
+.vscode/
+docker-compose.yaml
+Dockerfile
+node_modules/
+README.md
