@@ -5,11 +5,16 @@ import WindowAnalysisDetail from "../pages/WindowAnalysisDetail.jsx";
 import Home from "../pages/Home";
 import Models from "../pages/Models";
 import ModelsDetail from "../pages/ModelsDetail.jsx";
+import WindowAnalysisDetail from "../pages/WindowAnalysisDetail.jsx";
 
 export const privateRoutes = [
   {
     path: "/",
-    element: <Home />,
+    element: (
+      <DefaultLayout>
+        <Analysis />
+      </DefaultLayout>
+    ),
   },
   {
     path: "/analysis",
