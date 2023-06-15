@@ -1,14 +1,18 @@
 import DefaultLayout from "../layout/DefaultLayout.jsx";
 import Analysis from "../pages/Analysis";
 import AndroidAnalysisDetail from "../pages/AndroidAnalysisDetail.jsx";
-import Home from "../pages/Home";
 import Models from "../pages/Models";
 import ModelsDetail from "../pages/ModelsDetail.jsx";
+import WindowAnalysisDetail from "../pages/WindowAnalysisDetail.jsx";
 
 export const privateRoutes = [
   {
     path: "/",
-    element: <Home />,
+    element: (
+      <DefaultLayout>
+        <Analysis />
+      </DefaultLayout>
+    ),
   },
   {
     path: "/analysis",
@@ -19,10 +23,18 @@ export const privateRoutes = [
     ),
   },
   {
-    path: "/analysis/:id",
+    path: "/analysis/android/:id",
     element: (
       <DefaultLayout>
         <AndroidAnalysisDetail />
+      </DefaultLayout>
+    ),
+  },
+  {
+    path: "/analysis/window/:id",
+    element: (
+      <DefaultLayout>
+        <WindowAnalysisDetail />
       </DefaultLayout>
     ),
   },

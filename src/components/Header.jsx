@@ -2,14 +2,27 @@ import React, { useState } from "react";
 
 import { useDispatch } from "react-redux";
 import { onToggleSidebar } from "../redux/actions/animationActions";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   const dispatch = useDispatch();
   const [toggleSidebar, setToggleSidebar] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
 
   const onToggleMenuSidebar = () => {
     setToggleSidebar(!toggleSidebar);
     dispatch(onToggleSidebar(!toggleSidebar));
+  };
+
+  const onShowDropdown = () => {
+    setShowDropdown(!showDropdown);
+    setShowNotification(false);
+  };
+
+  const onShowDropdownNotify = () => {
+    setShowNotification(!showNotification);
+    setShowDropdown(false);
   };
 
   return (
@@ -88,21 +101,32 @@ const Header = () => {
                 <i className="fa fa-search"></i>
               </a>
             </li>
-            <li className="nav-item dropdown hidden-caret">
-              <a
+            {/* show notification  */}
+            <li
+              className={
+                showNotification
+                  ? "nav-item dropdown hidden-caret show"
+                  : "nav-item dropdown hidden-caret"
+              }
+            >
+              <Link
                 className="nav-link dropdown-toggle"
-                href="/"
                 id="notifDropdown"
                 role="button"
                 data-toggle="dropdown"
                 aria-haspopup="true"
                 aria-expanded="false"
+                onClick={() => onShowDropdownNotify()}
               >
                 <i className="fa fa-bell"></i>
                 <span className="notification">1</span>
-              </a>
+              </Link>
               <ul
-                className="dropdown-menu notif-box animated fadeIn"
+                className={
+                  showNotification
+                    ? "dropdown-menu notif-box animated fadeIn show"
+                    : "dropdown-menu notif-box animated fadeIn"
+                }
                 aria-labelledby="notifDropdown"
               >
                 <li>
@@ -132,12 +156,18 @@ const Header = () => {
                 </li>
               </ul>
             </li>
-            <li className="nav-item dropdown hidden-caret">
-              <a
+            <li
+              className={
+                showDropdown
+                  ? "nav-item dropdown hidden-caret show"
+                  : "nav-item dropdown hidden-caret"
+              }
+            >
+              <Link
                 className="dropdown-toggle profile-pic"
                 data-toggle="dropdown"
-                href="/"
                 aria-expanded="false"
+                onClick={() => onShowDropdown()}
               >
                 <div className="avatar-sm">
                   <img
@@ -146,8 +176,14 @@ const Header = () => {
                     className="avatar-img rounded-circle"
                   />
                 </div>
-              </a>
-              <ul className="dropdown-menu dropdown-user animated fadeIn">
+              </Link>
+              <ul
+                className={
+                  showDropdown
+                    ? "dropdown-menu dropdown-user animated fadeIn show"
+                    : "dropdown-menu dropdown-user animated fadeIn"
+                }
+              >
                 <div className="dropdown-user-scroll scrollbar-outer">
                   <li>
                     <div className="user-box">
