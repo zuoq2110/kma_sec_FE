@@ -2,17 +2,33 @@ import React from "react";
 import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
 
+const BASE_URL = "http://14.225.205.142:8000/api/v1/android/applications";
+const CONTENT_TYPE_APK = "application/vnd.android.package-archive";
+
 const Analysis = () => {
   const navigate = useNavigate();
 
-  const CONTENT_TYPE_APK = "application/vnd.android.package-archive";
+  const onChooseFile = () => {
+    const input = document.createElement("input");
+    input.setAttribute("type", "file");
+
+    input.addEventListener("change", function () {
+      const file = input.files[0];
+
+      if (file) {
+        analyze(file);
+      }
+    });
+
+    input.click();
+  };
 
   function analyze(file) {
     const formData = new FormData();
 
     formData.append("file", file);
     notify("Analyzing... This analysis may take a few minutes", "primary");
-    fetch(`/analysis/`, {
+    fetch(BASE_URL, {
       method: "POST",
       body: formData,
     })
@@ -39,8 +55,11 @@ const Analysis = () => {
             break;
         }
         setTimeout(() => {
-          // location.href = `/analysis/${type}/${analysis_id}/`;
-          navigate(`/analysis/${type}/${analysis_id}/`);
+          if (type === "android") {
+            navigate(`/analysis/android/${analysis_id}/`);
+          } else {
+            navigate(`/analysis/window/${analysis_id}/`);
+          }
         }, 1500);
         notify(
           "Analyze application successfully! We will redirect in a few seconds",
@@ -57,7 +76,7 @@ const Analysis = () => {
       icon: "flaticon-alarm-1",
     };
 
-    alert(content);
+    console.log(content);
 
     // $.notify(content, {
     //   type: type,
@@ -117,6 +136,7 @@ const Analysis = () => {
                   method="post"
                   encType="multipart/form-data"
                   className="dropzone dz-clickable"
+                  onClick={(event) => onChooseFile(event)}
                 >
                   <div className="dz-message" data-dz-message="">
                     <div className="icon">
