@@ -54,7 +54,7 @@ const Models = () => {
   }
 
   useEffect(() => {
-    fetch(`${BASE_URL}/models`, { method: "GET" })
+    fetch(`${BASE_URL}/api/v1/models`, { method: "GET" })
       .then((response) => response.json())
       .then((response) => {
         setDataModel(response);
