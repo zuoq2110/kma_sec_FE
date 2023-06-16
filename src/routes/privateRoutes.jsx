@@ -2,10 +2,8 @@ import DefaultLayout from "../layout/DefaultLayout.jsx";
 import Analysis from "../pages/Analysis";
 import AndroidAnalysisDetail from "../pages/AndroidAnalysisDetail.jsx";
 import WindowAnalysisDetail from "../pages/WindowAnalysisDetail.jsx";
-import Home from "../pages/Home";
 import Models from "../pages/Models";
 import ModelsDetail from "../pages/ModelsDetail.jsx";
-import WindowAnalysisDetail from "../pages/WindowAnalysisDetail.jsx";
 
 export const privateRoutes = [
   {

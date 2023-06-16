@@ -19,7 +19,7 @@ const Sidebar = () => {
           <div className="user">
             <div className="avatar-sm float-left mr-2">
               <img
-                src='{{ profile["avatar_url"] }}'
+                src="https://www.w3schools.com/howto/img_avatar.png"
                 alt="..."
                 className="avatar-img rounded-circle"
               />
@@ -33,9 +33,9 @@ const Sidebar = () => {
               >
                 <span>
                   {/* {{ profile["name"] }} */}
-                  Login
+                  Admin
                   <span className="user-level">
-                    Login
+                    Administrator
                     {/* {{ profile["role"] }} */}
                   </span>
                   <span className="caret"></span>
