@@ -4,11 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import { DataContext } from "../context/dataContext";
 import ToastNotification from "../components/ToastMessage";
+import { toast } from "react-toastify";
 
 const BASE_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
 const CONTENT_TYPE_APK = "application/vnd.android.package-archive";
 
 const Analysis = () => {
+  let infoToastRef = null;
   const navigate = useNavigate();
   const { setDataWindowAnalysis } = useContext(DataContext);
 
@@ -26,16 +28,28 @@ const Analysis = () => {
 
     input.click();
   };
+  const showCustomToast = () => {
+    infoToastRef = ToastNotification(
+      {
+        title: "Analyzing...",
+        message: "This analysis may take a few minutes",
+      },
+      "info"
+    );
+  };
+  const hideCustomToast = () => {
+    toast.dismiss(infoToastRef);
+  };
 
   function analyze(file) {
     const formData = new FormData();
     let typeFile = "";
     formData.append("file", file);
-    notify("Analyzing... This analysis may take a few minutes", "info");
+    showCustomToast();
     file.name.includes(".apk")
       ? (typeFile = "android")
       : (typeFile = "windows");
-    fetch(`${BASE_URL}/${typeFile}/applications`, {
+    fetch(`${BASE_URL}/api/v1/${typeFile}/applications`, {
       method: "POST",
       body: formData,
     })
@@ -71,6 +85,7 @@ const Analysis = () => {
             navigate(`/analysis/window/${analysis_window}/`);
           }
         }, 1500);
+        hideCustomToast();
         notify(
           "Analyze application successfully! We will redirect in a few seconds",
           "success"

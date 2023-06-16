@@ -23,7 +23,9 @@ const AndroidAnalysisDetail = () => {
   }
 
   function save(analysisId) {
-    fetch(`${BASE_URL}/android/applications/${analysisId}`, { method: "GET" })
+    fetch(`${BASE_URL}/api/v1/android/applications/${analysisId}`, {
+      method: "GET",
+    })
       .then((response) => response.json())
       .then((response) => {
         const json = JSON.stringify(response);
@@ -39,7 +41,9 @@ const AndroidAnalysisDetail = () => {
   }
 
   useEffect(() => {
-    fetch(`${BASE_URL}/android/applications/${analysisId}`, { method: "GET" })
+    fetch(`${BASE_URL}/api/v1/android/applications/${analysisId}`, {
+      method: "GET",
+    })
       .then((response) => response.json())
       .then((response) => {
         setDataAnalysis(response);

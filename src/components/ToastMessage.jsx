@@ -7,7 +7,15 @@ const ToastNotification = (content, toastTypes) => {
       return toast.success(
         <>
           <div>
-            <h3>{content.title}</h3>
+            <p
+              style={{
+                fontSize: "14px",
+                fontWeight: "bold",
+                marginBottom: "6px",
+              }}
+            >
+              {content.title}
+            </p>
             <p>{content.message}</p>
           </div>
         </>,
@@ -26,7 +34,15 @@ const ToastNotification = (content, toastTypes) => {
       return toast.error(
         <>
           <div>
-            <h3>{content.title}</h3>
+            <p
+              style={{
+                fontSize: "14px",
+                fontWeight: "bold",
+                marginBottom: "6px",
+              }}
+            >
+              {content.title}
+            </p>{" "}
             <p>{content.message}</p>
           </div>
         </>,
@@ -45,13 +61,22 @@ const ToastNotification = (content, toastTypes) => {
       return toast.info(
         <>
           <div>
-            <h3>{content.title}</h3>
+            <p
+              style={{
+                fontSize: "14px",
+                fontWeight: "bold",
+                marginBottom: "6px",
+              }}
+            >
+              {content.title}
+            </p>{" "}
             <p>{content.message}</p>
           </div>
         </>,
         {
+          toastId: "toast-loading",
           position: "bottom-right",
-          autoClose: 1000,
+          autoClose: false,
           hideProgressBar: false,
           closeOnClick: true,
           pauseOnHover: false,
