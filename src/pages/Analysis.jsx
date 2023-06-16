@@ -1,12 +1,16 @@
-import React from "react";
+import React, { useContext } from "react";
 import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
+import { DataContext } from "../context/dataContext";
+import ToastNotification from "../components/ToastMessage";
 
-const BASE_URL = "http://14.225.205.142:8000/api/v1/android/applications";
+const BASE_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
 const CONTENT_TYPE_APK = "application/vnd.android.package-archive";
 
 const Analysis = () => {
   const navigate = useNavigate();
+  const { setDataWindowAnalysis } = useContext(DataContext);
 
   const onChooseFile = () => {
     const input = document.createElement("input");
@@ -25,10 +29,13 @@ const Analysis = () => {
 
   function analyze(file) {
     const formData = new FormData();
-
+    let typeFile = "";
     formData.append("file", file);
-    notify("Analyzing... This analysis may take a few minutes", "primary");
-    fetch(BASE_URL, {
+    notify("Analyzing... This analysis may take a few minutes", "info");
+    file.name.includes(".apk")
+      ? (typeFile = "android")
+      : (typeFile = "windows");
+    fetch(`${BASE_URL}/${typeFile}/applications`, {
       method: "POST",
       body: formData,
     })
@@ -43,6 +50,7 @@ const Analysis = () => {
       })
       .then((response) => {
         const analysis_id = response["data"]["analysis_id"];
+        let analysis_window = null;
         let type = null;
 
         switch (file.type) {
@@ -52,13 +60,15 @@ const Analysis = () => {
 
           default:
             type = "windows";
+            analysis_window = uuidv4().replace(/-/g, "");
+            setDataWindowAnalysis(response.data);
             break;
         }
         setTimeout(() => {
           if (type === "android") {
             navigate(`/analysis/android/${analysis_id}/`);
           } else {
-            navigate(`/analysis/window/${analysis_id}/`);
+            navigate(`/analysis/window/${analysis_window}/`);
           }
         }, 1500);
         notify(
@@ -66,26 +76,17 @@ const Analysis = () => {
           "success"
         );
       })
-      .catch((error) => notify(error.message, "danger"));
+      .catch((error) => notify(error.message, "error"));
   }
 
   function notify(message, type) {
     const content = {
       title: "K-Security",
       message: message,
-      icon: "flaticon-alarm-1",
+      // icon: "flaticon-alarm-1",
     };
 
-    console.log(content);
-
-    // $.notify(content, {
-    //   type: type,
-    //   placement: {
-    //     from: 'bottom',
-    //     align: 'right',
-    //   },
-    //   time: 1000,
-    // });
+    ToastNotification(content, type);
   }
 
   const dragOverHandler = (event) => {

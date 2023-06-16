@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import moment from "moment";
 
-const BASE_URL = "http://14.225.205.142:8000/api/v1/models";
+const BASE_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
 
 const Models = () => {
   const [dataModel, setDataModel] = useState();
@@ -54,7 +54,7 @@ const Models = () => {
   }
 
   useEffect(() => {
-    fetch(BASE_URL, { method: "GET" })
+    fetch(`${BASE_URL}/models`, { method: "GET" })
       .then((response) => response.json())
       .then((response) => {
         setDataModel(response);

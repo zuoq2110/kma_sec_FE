@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 
 import Footer from "../components/Footer";
 import { useLocation } from "react-router-dom";
+import ToastNotification from "../components/ToastMessage";
 
-const BASE_URL = "http://14.225.205.142:8000/api/v1/android/applications";
+const BASE_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
 
 const AndroidAnalysisDetail = () => {
   const [dataAnalysis, setDataAnalysis] = useState();
@@ -15,23 +16,14 @@ const AndroidAnalysisDetail = () => {
     const content = {
       title: "K-Security",
       message: message,
-      icon: "flaticon-alarm-1",
+      // icon: "flaticon-alarm-1",
     };
 
-    console.log(content);
-
-    // $.notify(content, {
-    //   type: type,
-    //   placement: {
-    //     from: 'bottom',
-    //     align: 'right',
-    //   },
-    //   time: 1000,
-    // });
+    ToastNotification(content, type);
   }
 
   function save(analysisId) {
-    fetch(`${BASE_URL}/${analysisId}`, { method: "GET" })
+    fetch(`${BASE_URL}/android/applications/${analysisId}`, { method: "GET" })
       .then((response) => response.json())
       .then((response) => {
         const json = JSON.stringify(response);
@@ -43,11 +35,11 @@ const AndroidAnalysisDetail = () => {
         link.click();
         notify("Export application's analysis successfully!", "success");
       })
-      .catch((error) => notify(error, "danger"));
+      .catch((error) => notify(error, "error"));
   }
 
   useEffect(() => {
-    fetch(`${BASE_URL}/${analysisId}`, { method: "GET" })
+    fetch(`${BASE_URL}/android/applications/${analysisId}`, { method: "GET" })
       .then((response) => response.json())
       .then((response) => {
         setDataAnalysis(response);

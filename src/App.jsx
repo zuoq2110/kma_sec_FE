@@ -6,16 +6,35 @@ import "./styles/assets/css/fonts.min.css";
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import { privateRoutes } from "./routes/privateRoutes";
+
+import DataProvider from "./context/dataContext";
 
 function App() {
   return (
     <Router>
-      <Routes>
-        {privateRoutes.map((route) => (
-          <Route element={route.element} key={route.path} path={route.path} />
-        ))}
-      </Routes>
+      <DataProvider>
+        <Routes>
+          {privateRoutes.map((route) => (
+            <Route element={route.element} key={route.path} path={route.path} />
+          ))}
+        </Routes>
+      </DataProvider>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={1000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </Router>
   );
 }
