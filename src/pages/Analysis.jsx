@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import { DataContext } from "../context/dataContext";
 import ToastNotification from "../components/ToastMessage";
 
-const BASE_URL = process.env.REACT_APP_API_URL;
+const BASE_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
 const CONTENT_TYPE_APK = "application/vnd.android.package-archive";
 
 const Analysis = () => {
@@ -34,9 +34,7 @@ const Analysis = () => {
     notify("Analyzing... This analysis may take a few minutes", "info");
     file.name.includes(".apk")
       ? (typeFile = "android")
-      : file.name.includes(".exe")
-      ? (typeFile = "windows")
-      : (typeFile = "");
+      : (typeFile = "windows");
     fetch(`${BASE_URL}/${typeFile}/applications`, {
       method: "POST",
       body: formData,

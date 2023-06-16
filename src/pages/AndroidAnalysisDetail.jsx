@@ -4,7 +4,7 @@ import Footer from "../components/Footer";
 import { useLocation } from "react-router-dom";
 import ToastNotification from "../components/ToastMessage";
 
-const BASE_URL = process.env.REACT_APP_API_URL;
+const BASE_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
 
 const AndroidAnalysisDetail = () => {
   const [dataAnalysis, setDataAnalysis] = useState();

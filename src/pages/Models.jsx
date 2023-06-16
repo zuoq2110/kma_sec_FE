@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import moment from "moment";
 
-const BASE_URL = process.env.REACT_APP_API_URL;
+const BASE_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
 
 const Models = () => {
   const [dataModel, setDataModel] = useState();
