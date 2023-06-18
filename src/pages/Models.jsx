@@ -1,27 +1,28 @@
-import React, { useEffect, useState } from 'react';
-import Footer from '../components/Footer';
-import { Link } from 'react-router-dom';
-import Swal from 'sweetalert2';
-import moment from 'moment';
-import { BASE_URL } from '../links/link';
+import React, { useEffect, useState } from "react";
+import Footer from "../components/Footer";
+import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
+import moment from "moment";
+
+const BASE_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
 
 const Models = () => {
   const [dataModel, setDataModel] = useState();
 
   function displayOptionsDialog(onSelected) {
     Swal.fire({
-      title: 'Export',
+      title: "Export",
       showCancelButton: false,
       showConfirmButton: false,
       html: `
-        <button class="swal2-confirm swal2-styled" value="HDF5/H5">HDF5/H5</button>
-        <button class="swal2-confirm swal2-styled" value="TFLite">TFLite</button>
+        <button class="swal2-confirm swal2-styled" value="h5">HDF5/H5</button>
+        <button class="swal2-confirm swal2-styled" value="tflite">TFLite</button>
       `,
       didOpen: () => {
         const buttons =
-          Swal.getHtmlContainer().querySelectorAll('.swal2-confirm');
+          Swal.getHtmlContainer().querySelectorAll(".swal2-confirm");
         buttons.forEach((button) => {
-          button.addEventListener('click', () => {
+          button.addEventListener("click", () => {
             onSelected(button.value);
 
             Swal.close();
@@ -33,18 +34,16 @@ const Models = () => {
 
   function download(modelId, type) {
     switch (type) {
-      case 'HDF5/H5':
+      case "HDF5/H5":
         displayOptionsDialog((format) => {
           if (format !== null) {
-            window.location.href = `/models/${modelId}/source?format=${format}`;
-            // navigate(`/models/${modelId}/source?format=${format}`);
+            window.location.href = `${BASE_URL}/api/v1/models/${modelId}/source?format=${format}`;
           }
         });
         break;
 
-      case 'PICKLE':
-        window.location.href = `/models/${modelId}/source?format=pickle`;
-        // navigate(`/models/${modelId}/source?format=pickle`);
+      case "PICKLE":
+        window.location.href = `${BASE_URL}/api/v1/models/${modelId}/source?format=pickle`;
         break;
 
       default:
@@ -53,7 +52,7 @@ const Models = () => {
   }
 
   useEffect(() => {
-    fetch(`${BASE_URL}/api/v1/models`, { method: 'GET' })
+    fetch(`${BASE_URL}/api/v1/models`, { method: "GET" })
       .then((response) => response.json())
       .then((response) => {
         setDataModel(response);
@@ -62,39 +61,39 @@ const Models = () => {
 
   return (
     <>
-      <div className='main-panel'>
-        <div className='content'>
-          <div className='page-inner'>
-            <div className='page-header'>
-              <h4 className='page-title'>Models</h4>
-              <ul className='breadcrumbs'>
-                <li className='nav-home'>
-                  <a href='/'>
-                    <i className='flaticon-home'></i>
+      <div className="main-panel">
+        <div className="content">
+          <div className="page-inner">
+            <div className="page-header">
+              <h4 className="page-title">Models</h4>
+              <ul className="breadcrumbs">
+                <li className="nav-home">
+                  <a href="/">
+                    <i className="flaticon-home"></i>
                   </a>
                 </li>
-                <li className='separator'>
-                  <i className='flaticon-right-arrow'></i>
+                <li className="separator">
+                  <i className="flaticon-right-arrow"></i>
                 </li>
-                <li className='nav-item'>
+                <li className="nav-item">
                   <span>Models</span>
                 </li>
               </ul>
             </div>
             {dataModel && (
-              <div className='row'>
-                <div className='col-md-12'>
-                  <div className='card'>
-                    <div className='card-header'>
-                      <div className='d-flex align-items-center'>
-                        <h4 className='card-title'>Trained models</h4>
+              <div className="row">
+                <div className="col-md-12">
+                  <div className="card">
+                    <div className="card-header">
+                      <div className="d-flex align-items-center">
+                        <h4 className="card-title">Trained models</h4>
                       </div>
                     </div>
-                    <div className='card-body'>
-                      <div className='table-responsive'>
+                    <div className="card-body">
+                      <div className="table-responsive">
                         <table
-                          id='trained-models'
-                          className='display table table-striped table-hover'
+                          id="trained-models"
+                          className="display table table-striped table-hover"
                         >
                           <thead>
                             <tr>
@@ -105,7 +104,7 @@ const Models = () => {
                               <th>Created At</th>
                               <th
                                 style={{
-                                  width: '10%',
+                                  width: "10%",
                                 }}
                               >
                                 Action
@@ -125,22 +124,22 @@ const Models = () => {
                                 <td>{model.input_format}</td>
                                 <td>
                                   {moment(model.created_at).format(
-                                    'DD/MM/YYYY HH:mm:ss',
+                                    "DD/MM/YYYY HH:mm:ss"
                                   )}
                                 </td>
                                 <td>
-                                  <div className='form-button-action'>
+                                  <div className="form-button-action">
                                     <button
-                                      type='button'
-                                      data-toggle='tooltip'
-                                      title=''
-                                      className='btn btn-link btn-primary btn-lg'
-                                      data-original-title='Download'
+                                      type="button"
+                                      data-toggle="tooltip"
+                                      title=""
+                                      className="btn btn-link btn-primary btn-lg"
+                                      data-original-title="Download"
                                       onClick={() =>
                                         download(model.id, model.type)
                                       }
                                     >
-                                      <i className='fa fa-download'></i>
+                                      <i className="fa fa-download"></i>
                                     </button>
                                   </div>
                                 </td>

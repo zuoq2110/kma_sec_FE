@@ -57,13 +57,13 @@ const WindowAnalysisDetail = () => {
                   <i className="flaticon-right-arrow"></i>
                 </li>
                 <li className="nav-item">
-                  <Link>Windows</Link>
+                  <Link style={{ cursor: "default" }}>Windows</Link>
                 </li>
                 <li className="separator">
                   <i className="flaticon-right-arrow"></i>
                 </li>
                 <li className="nav-item">
-                  <Link>{analysisId}</Link>
+                  <Link style={{ cursor: "default" }}>{analysisId}</Link>
                 </li>
               </ul>
             </div>

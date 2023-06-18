@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import Footer from "../components/Footer";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import ToastNotification from "../components/ToastMessage";
 
 const BASE_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
@@ -67,19 +67,19 @@ const AndroidAnalysisDetail = () => {
                 <i className="flaticon-right-arrow"></i>
               </li>
               <li className="nav-item">
-                <a href="/analysis/">Analysis</a>
+                <Link to="/analysis/">Analysis</Link>
               </li>
               <li className="separator">
                 <i className="flaticon-right-arrow"></i>
               </li>
               <li className="nav-item">
-                <span>Androids</span>
+                <Link style={{ cursor: "default" }}>Androids</Link>
               </li>
               <li className="separator">
                 <i className="flaticon-right-arrow"></i>
               </li>
               <li className="nav-item">
-                <span>{analysisId}</span>
+                <Link style={{ cursor: "default" }}>{analysisId}</Link>
               </li>
             </ul>
           </div>
