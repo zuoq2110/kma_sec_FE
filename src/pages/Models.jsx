@@ -13,10 +13,10 @@ const Models = () => {
     Swal.fire({
       title: "Export",
       showCancelButton: false,
-      confirmButtonText: "Close",
+      showConfirmButton: false,
       html: `
-        <button class="swal2-confirm swal2-styled" value="HDF5/H5">HDF5/H5</button>
-        <button class="swal2-confirm swal2-styled" value="TFLite">TFLite</button>
+        <button class="swal2-confirm swal2-styled" value="h5">HDF5/H5</button>
+        <button class="swal2-confirm swal2-styled" value="tflite">TFLite</button>
       `,
       didOpen: () => {
         const buttons =
@@ -37,15 +37,13 @@ const Models = () => {
       case "HDF5/H5":
         displayOptionsDialog((format) => {
           if (format !== null) {
-            window.location.href = `/models/${modelId}/source?format=${format}`;
-            // navigate(`/models/${modelId}/source?format=${format}`);
+            window.location.href = `${BASE_URL}/api/v1/models/${modelId}/source?format=${format}`;
           }
         });
         break;
 
       case "PICKLE":
-        window.location.href = `/models/${modelId}/source?format=pickle`;
-        // navigate(`/models/${modelId}/source?format=pickle`);
+        window.location.href = `${BASE_URL}/api/v1/models/${modelId}/source?format=pickle`;
         break;
 
       default:
@@ -60,6 +58,7 @@ const Models = () => {
         setDataModel(response);
       });
   }, []);
+
   return (
     <>
       <div className="main-panel">
