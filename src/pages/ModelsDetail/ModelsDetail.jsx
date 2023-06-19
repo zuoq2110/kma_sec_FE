@@ -427,7 +427,9 @@ const ModelsDetail = () => {
                                     anchor: "center",
                                     align: "center",
                                     formatter: (value) => {
-                                      return parseInt(value) + "%";
+                                      return value > 3
+                                        ? parseInt(value) + "%"
+                                        : null;
                                     },
                                   },
                                 },
