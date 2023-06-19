@@ -1,5 +1,5 @@
 {
-  "name": "client",
+  "name": "portal",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -10,6 +10,7 @@
     "chartjs-plugin-datalabels": "^2.2.0",
     "moment": "^2.29.4",
     "plotly.js": "^2.24.2",
+    "primeflex": "^3.3.1",
     "primeicons": "^6.0.1",
     "primereact": "^9.5.0",
     "react": "^18.2.0",
