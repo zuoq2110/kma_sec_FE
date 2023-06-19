@@ -4,6 +4,13 @@ import "./styles/assets/css/atlantis.min.css";
 import "./styles/assets/css/bootstrap.min.css";
 import "./styles/assets/css/fonts.min.css";
 
+//theme
+import "primereact/resources/themes/lara-light-indigo/theme.css";
+
+//core
+import "primereact/resources/primereact.min.css";
+import "primeicons/primeicons.css";
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import { ToastContainer } from "react-toastify";

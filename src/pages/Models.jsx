@@ -1,13 +1,19 @@
 import React, { useEffect, useState } from "react";
 import Footer from "../components/Footer";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import moment from "moment";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
+import { Button } from "primereact/button";
+import { InputText } from "primereact/inputtext";
 
 const BASE_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
 
 const Models = () => {
+  const navigate = useNavigate();
   const [dataModel, setDataModel] = useState();
+  const [globalFilter, setGlobalFilter] = useState(null);
 
   function displayOptionsDialog(onSelected) {
     Swal.fire({
@@ -59,6 +65,23 @@ const Models = () => {
       });
   }, []);
 
+  const header = (
+    <div
+      className="flex-wrap gap-2 align-items-center justify-content-between"
+      style={{ display: "flex" }}
+    >
+      <h4 className="m-0">Trained models</h4>
+      <span className="p-input-icon-left">
+        <i className="pi pi-search" />
+        <InputText
+          type="search"
+          onInput={(e) => setGlobalFilter(e.target.value)}
+          placeholder="Search..."
+        />
+      </span>
+    </div>
+  );
+
   return (
     <>
       <div className="main-panel">
@@ -80,79 +103,94 @@ const Models = () => {
                 </li>
               </ul>
             </div>
-            {dataModel && (
-              <div className="row">
-                <div className="col-md-12">
-                  <div className="card">
-                    <div className="card-header">
-                      <div className="d-flex align-items-center">
-                        <h4 className="card-title">Trained models</h4>
-                      </div>
-                    </div>
-                    <div className="card-body">
-                      <div className="table-responsive">
-                        <table
-                          id="trained-models"
-                          className="display table table-striped table-hover"
+            {/* <div
+              className="flex flex-wrap  gap-2 mb-4"
+              style={{ display: "flex", justifyContent: "end" }}
+            >
+              <Button label="Add Model" icon="pi pi-plus" severity="success" />
+            </div> */}
+            <div className="card">
+              {dataModel && (
+                <>
+                  <DataTable
+                    value={dataModel.data}
+                    dataKey="id"
+                    paginator
+                    rows={10}
+                    rowsPerPageOptions={[5, 10, 25]}
+                    removableSort
+                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+                    globalFilter={globalFilter}
+                    header={header}
+                  >
+                    <Column
+                      field="id"
+                      header="ID"
+                      sortable
+                      style={{ minWidth: "18rem" }}
+                      body={(rowData) => (
+                        <span
+                          style={{
+                            cursor: "pointer",
+                            color: "#1572e8",
+                          }}
+                          onClick={() => navigate(`/models/${rowData.id}`)}
                         >
-                          <thead>
-                            <tr>
-                              <th>ID</th>
-                              <th>Version</th>
-                              <th>Type</th>
-                              <th>Input Format</th>
-                              <th>Created At</th>
-                              <th
-                                style={{
-                                  width: "10%",
-                                }}
-                              >
-                                Action
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {dataModel.data.map((model) => (
-                              <tr key={model.id}>
-                                <td>
-                                  <Link to={`/models/${model.id}/`}>
-                                    {model.id}
-                                  </Link>
-                                </td>
-                                <td>{model.version}</td>
-                                <td>{model.type}</td>
-                                <td>{model.input_format}</td>
-                                <td>
-                                  {moment(model.created_at).format(
-                                    "DD/MM/YYYY HH:mm:ss"
-                                  )}
-                                </td>
-                                <td>
-                                  <div className="form-button-action">
-                                    <button
-                                      type="button"
-                                      data-toggle="tooltip"
-                                      title=""
-                                      className="btn btn-link btn-primary btn-lg"
-                                      data-original-title="Download"
-                                      onClick={() =>
-                                        download(model.id, model.type)
-                                      }
-                                    >
-                                      <i className="fa fa-download"></i>
-                                    </button>
-                                  </div>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
+                          {rowData.id}
+                        </span>
+                      )}
+                    ></Column>
+                    <Column
+                      field="version"
+                      header="Version"
+                      sortable
+                      style={{ minWidth: "6rem" }}
+                    ></Column>
+                    <Column
+                      field="type"
+                      header="Type"
+                      sortable
+                      style={{ minWidth: "8rem" }}
+                    ></Column>
+                    <Column
+                      field="input_format"
+                      header="Input Format"
+                      sortable
+                      style={{ minWidth: "10rem" }}
+                    ></Column>
+                    <Column
+                      field="created_at"
+                      header="Create At"
+                      sortable
+                      style={{ minWidth: "12rem" }}
+                      body={(rowData) => (
+                        <span>
+                          {moment(rowData.create_at).format(
+                            "DD/MM/YYYY HH:mm:ss"
+                          )}
+                        </span>
+                      )}
+                    ></Column>
+                    <Column
+                      body={(rowData) => (
+                        <>
+                          <Button
+                            icon="pi pi-download"
+                            rounded
+                            outlined
+                            className="mr-2"
+                            onClick={() => download(rowData.id, rowData.type)}
+                          />
+                        </>
+                      )}
+                      exportable={false}
+                      style={{ minWidth: "6rem" }}
+                    ></Column>
+                  </DataTable>
+                </>
+              )}
+            </div>
           </div>
         </div>
 
