@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { privateRoutes } from "./routes/privateRoutes";
 import DataProvider from "./context/dataContext";
 
-import "primereact/resources/themes/mdc-light-indigo/theme.css";
+import "primereact/resources/themes/lara-light-blue/theme.css";
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
 import "primeflex/primeflex.css";
