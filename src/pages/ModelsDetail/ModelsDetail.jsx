@@ -1,15 +1,16 @@
-import { ArcElement, Chart, Legend, Tooltip } from "chart.js";
+import { ArcElement, Chart, Legend } from "chart.js";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { Pie } from "react-chartjs-2";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 import Plot from "react-plotly.js";
 import { Link, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import Footer from "../../components/Footer";
 import "./ModelsDetail.css";
-Chart.register(ArcElement, Tooltip, Legend);
+Chart.register(ArcElement, ChartDataLabels, Legend);
 
 const BASE_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
 
@@ -385,6 +386,9 @@ const ModelsDetail = () => {
                           {modelDetail && (
                             <Pie
                               data={{
+                                labels: modelDetail?.datasets?.map(
+                                  (dataset) => dataset.label
+                                ),
                                 datasets: [
                                   {
                                     data: modelDetail?.datasets?.map(
@@ -398,19 +402,13 @@ const ModelsDetail = () => {
                                         ).toString(16)}`
                                     ),
                                     borderWidth: 1,
-                                    datalabels: {
-                                      anchor: "end",
-                                      align: "start",
-                                    },
                                   },
                                 ],
-                                labels: modelDetail?.datasets?.map(
-                                  (dataset) => dataset.label
-                                ),
                               }}
                               options={{
                                 plugins: {
                                   legend: {
+                                    display: true,
                                     position: "right",
                                     align: "start",
                                     labels: {
@@ -421,25 +419,21 @@ const ModelsDetail = () => {
                                     },
                                   },
                                   datalabels: {
-                                    display: true,
                                     color: "#fff",
                                     font: {
                                       weight: "bold",
+                                      size: "16px",
                                     },
+                                    anchor: "center",
+                                    align: "center",
                                     formatter: (value) => {
-                                      console.log(value);
-                                      return value + "%";
+                                      return parseInt(value) + "%";
                                     },
-                                  },
-                                  pieceLabel: {
-                                    render: "value",
-                                    fontColor: "white",
-                                    fontSize: 14,
                                   },
                                 },
                                 responsive: true,
                                 maintainAspectRatio: false,
-                                tooltips: true,
+
                                 layout: {
                                   padding: {
                                     left: 16,
