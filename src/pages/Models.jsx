@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { BreadCrumb } from "primereact/breadcrumb";
 import { Divider } from "primereact/divider";
 import { InputText } from "primereact/inputtext";
@@ -9,13 +9,12 @@ import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
 import moment from "moment";
 
-const KSECURITY_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
+const KSECURITY_URL = "http://14.225.205.142:8000";
 
 const MODEL_TYPE_HDF5 = "HDF5/H5";
 const MODEL_TYPE_PICKLE = "PICKLE";
 
 export default function ProductsDemo() {
-  const navigate = useNavigate();
   const [models, setModels] = useState(null);
   const [selectedModels, setSelectedModels] = useState(null);
   const [globalFilter, setGlobalFilter] = useState(null);
@@ -46,12 +45,12 @@ export default function ProductsDemo() {
 
   const idTemplate = (rawData) => {
     return (
-      <span
-        onClick={() => navigate(`/models/${rawData.id}`)}
-        style={{ cursor: "pointer", color: "#3B82F6" }}
+      <Link
+        to={`/models/${rawData.id}`}
+        style={{ textDecoration: "none", color: "var(--primary-color)" }}
       >
         {rawData.id}
-      </span>
+      </Link>
     );
   };
 
