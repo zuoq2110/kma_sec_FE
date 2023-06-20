@@ -127,6 +127,7 @@ export default function Models() {
           onSelectionChange={(e) => setSelectedModels(e.value)}
           dataKey="id"
           paginator
+          removableSort
           rows={10}
           rowsPerPageOptions={[10, 25, 50, 100]}
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"

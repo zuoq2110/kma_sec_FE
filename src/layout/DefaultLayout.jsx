@@ -8,11 +8,13 @@ import { classNames } from "primereact/utils";
 import { LayoutContext } from "../context/layoutContext";
 import AppTopbar from "../components/TopBar";
 import AppFooter from "../components/Footer";
+import Sidebar from "../components/Sidebar";
 
 const DefaultLayout = (props) => {
   const { layoutConfig, layoutState, setLayoutState } =
     useContext(LayoutContext);
   const topbarRef = useRef(null);
+  const sidebarRef = useRef(null);
 
   const containerClass = classNames("layout-wrapper", {
     "layout-overlay": layoutConfig.menuMode === "overlay",
@@ -56,6 +58,9 @@ const DefaultLayout = (props) => {
   return (
     <div className={containerClass}>
       <AppTopbar ref={topbarRef} />
+      <div ref={sidebarRef} className="layout-sidebar">
+        <Sidebar />
+      </div>
 
       <div className="layout-main-container">
         <div className="layout-main">{props.children}</div>

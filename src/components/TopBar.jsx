@@ -9,7 +9,8 @@ import { classNames } from "primereact/utils";
 import { LayoutContext } from "../context/layoutContext";
 
 const AppTopbar = forwardRef((props, ref) => {
-  const { layoutState, onMenuToggle, showProfileSidebar } = useContext(LayoutContext);
+  const { layoutState, onMenuToggle, showProfileSidebar } =
+    useContext(LayoutContext);
   const menubuttonRef = useRef(null);
   const topbarmenuRef = useRef(null);
   const topbarmenubuttonRef = useRef(null);
@@ -22,8 +23,14 @@ const AppTopbar = forwardRef((props, ref) => {
 
   return (
     <div className="layout-topbar">
-      <Link href="/" className="layout-topbar-logo">
-        <img src="#" width="47.22px" height={"35px"} widt={"true"} alt="logo" />
+      <Link to="/" className="layout-topbar-logo">
+        <img
+          src="https://b-f9-zpcloud.zdn.vn/4754067431337699379/422e578ea675772b2e64.jpg"
+          width="47.22px"
+          height={"35px"}
+          widt={"true"}
+          alt="logo"
+        />
         <span>KMA - Security</span>
       </Link>
 
