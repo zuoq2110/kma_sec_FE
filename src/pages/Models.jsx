@@ -15,17 +15,11 @@ const KSECURITY_URL = "http://14.225.205.142:8000";
 const MODEL_TYPE_HDF5 = "HDF5/H5";
 const MODEL_TYPE_PICKLE = "PICKLE";
 
-export default function ProductsDemo() {
+export default function Models() {
   const [models, setModels] = useState(null);
   const [selectedModels, setSelectedModels] = useState(null);
   const [globalFilter, setGlobalFilter] = useState(null);
   const toast = useRef(null);
-
-  useEffect(() => {
-    fetch(`${KSECURITY_URL}/api/v1/models`, { method: "GET" })
-      .then((response) => response.json())
-      .then((response) => setModels(response.data));
-  }, []);
 
   const home = { icon: "pi pi-home", url: "/" };
   const items = [{ label: "Models" }];
@@ -107,8 +101,14 @@ export default function ProductsDemo() {
     );
   };
 
+  useEffect(() => {
+    fetch(`${KSECURITY_URL}/api/v1/models`, { method: "GET" })
+      .then((response) => response.json())
+      .then((response) => setModels(response.data));
+  }, []);
+
   return (
-    <div>
+    <>
       <Toast ref={toast} />
       <div className="flex flex-wrap gap-2 align-items-center mb-4">
         <h2 className="mr-3">Models</h2>
@@ -174,6 +174,6 @@ export default function ProductsDemo() {
           ></Column>
         </DataTable>
       </div>
-    </div>
+    </>
   );
 }
