@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Toast } from "primereact/toast";
 import { BreadCrumb } from "primereact/breadcrumb";
 import { Divider } from "primereact/divider";
@@ -13,7 +13,9 @@ const KSECURITY_URL = "http://14.225.205.142:8000";
 const CONTENT_TYPE_APK = "application/vnd.android.package-archive";
 
 export default function Analysis() {
+  const navigate = useNavigate();
   const [totalSize, setTotalSize] = useState(0);
+  const [progressState, setProgessState] = useState(0);
   const fileUploadRef = useRef(null);
   const toast = useRef(null);
 
@@ -33,30 +35,6 @@ export default function Analysis() {
 
   const onClear = () => {
     setTotalSize(0);
-  };
-
-  const onUpload = (e) => {
-    let _totalSize = 0;
-
-    e.files.forEach((file) => {
-      _totalSize += file.size || 0;
-    });
-
-    setTotalSize(_totalSize);
-    toast.current.show({
-      severity: "info",
-      summary: "Success",
-      detail: "File uploaded!",
-    });
-  };
-
-  const onError = (e) => {
-    console.log(e);
-    toast.current.show({
-      severity: "error",
-      summary: "Failure",
-      detail: "An error has been ocurred.",
-    });
   };
 
   const onTemplateRemove = (file, callback) => {
@@ -94,6 +72,10 @@ export default function Analysis() {
         </div>
       </div>
     );
+  };
+
+  const progressBarTemplate = () => {
+    return <ProgressBar value={progressState} showValue={false} />;
   };
 
   const itemTemplate = (file, props) => {
@@ -199,17 +181,33 @@ export default function Analysis() {
   };
 
   const handler = async (e) => {
-    let response;
     const formData = new FormData();
     const file = e.files[0];
     const type = file.type === CONTENT_TYPE_APK ? "android" : "windows";
 
     formData.append("file", file);
-    response = await fetch(`${KSECURITY_URL}/api/v1/${type}/applications`, {
+    setProgessState(99);
+    fetch(`${KSECURITY_URL}/api/v1/${type}/applications`, {
       method: "POST",
       body: formData,
-    }).then((response) => response.json());
-    console.log(response);
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        toast.current.show({
+          severity: "success",
+          summary: "Success",
+          detail: "File uploaded!",
+        });
+        // TODO("Handle navigate to analysis details page")
+      })
+      .catch((error) => {
+        toast.current.show({
+          severity: "error",
+          summary: "Failure",
+          detail: error,
+        });
+      })
+      .finally(() => setProgessState(0));
   };
 
   return (
@@ -248,9 +246,8 @@ export default function Analysis() {
           maxFileSize={100000000}
           onSelect={onSelect}
           onClear={onClear}
-          onUpload={onUpload}
-          onError={onError}
           headerTemplate={headerTemplate}
+          progressBarTemplate={progressBarTemplate}
           itemTemplate={itemTemplate}
           emptyTemplate={emptyTemplate}
           chooseOptions={chooseOptions}
