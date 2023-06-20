@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Toast } from "primereact/toast";
 import { BreadCrumb } from "primereact/breadcrumb";
@@ -8,6 +8,8 @@ import { ProgressBar } from "primereact/progressbar";
 import { Button } from "primereact/button";
 import { Tooltip } from "primereact/tooltip";
 import { Tag } from "primereact/tag";
+import { v4 as uuidv4 } from "uuid";
+import { DataContext } from "../context/dataContext";
 
 const KSECURITY_URL = "http://14.225.205.142:8000";
 const CONTENT_TYPE_APK = "application/vnd.android.package-archive";
@@ -18,6 +20,7 @@ export default function Analysis() {
   const [progressState, setProgessState] = useState(0);
   const fileUploadRef = useRef(null);
   const toast = useRef(null);
+  const { setDataWindowAnalysis } = useContext(DataContext);
 
   const home = { icon: "pi pi-home", url: "/" };
   const items = [{ label: "Analysis" }];
@@ -198,7 +201,16 @@ export default function Analysis() {
           summary: "Success",
           detail: "File uploaded!",
         });
-        // TODO("Handle navigate to analysis details page")
+
+        setTimeout(() => {
+          if (type === "android") {
+            navigate(`/analysis/${type}/${response.data.analysis_id}`);
+          } else {
+            let analysis_window = uuidv4().replace(/-/g, "");
+            setDataWindowAnalysis(response.data);
+            navigate(`/analysis/${type}/${analysis_window}`);
+          }
+        }, 1500);
       })
       .catch((error) => {
         toast.current.show({

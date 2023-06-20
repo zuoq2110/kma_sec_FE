@@ -10,3 +10,94 @@
 .layout-main {
   flex: 1 1 auto;
 }
+
+.main-panel {
+  display: flex;
+  justify-content: center;
+}
+
+.container-analysis-detail {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  margin-right: -15px;
+  margin-left: -15px;
+  justify-content: center;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+.row {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  margin-right: -15px;
+  margin-left: -15px;
+}
+
+.title-analysis-detail {
+  display: flex;
+  align-items: center;
+}
+
+.flex {
+  display: flex;
+}
+
+.card {
+  position: relative;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background-color: #fff;
+  background-clip: border-box;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 0.25rem;
+}
+
+.card-invoice {
+  .card-header {
+    padding: 50px 0px 20px;
+    border: 0px !important;
+    width: 80%;
+    margin: auto;
+    .invoice-header {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      .invoice-title {
+        font-size: 27px;
+        font-weight: 400;
+        margin-top: 0;
+      }
+    }
+  }
+  .card-body {
+    padding: 0px 0px 20px;
+    border: 0px !important;
+    width: 75%;
+    margin: auto;
+    .info-invoice {
+      padding-top: 15px;
+      padding-bottom: 15px;
+      flex: 1;
+    }
+    .text-center {
+      text-align: center;
+    }
+    .card-detail {
+      display: flex;
+      justify-content: center;
+    }
+  }
+}
+
+.table td {
+  padding: 0 25px !important;
+}
