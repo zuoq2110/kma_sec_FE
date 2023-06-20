@@ -1,17 +1,14 @@
 import React from "react";
-import { useSelector } from "react-redux";
-import Header from "../components/Header";
-import Sidebar from "../components/Sidebar";
+import Footer from "../components/Footer";
 
-const DefaultLayout = ({ children }) => {
-  const statusToggleSidebar = useSelector((state) => state.onToggleSidebar);
-  const status = statusToggleSidebar.statusSidebar;
-
+const DefaultLayout = (props) => {
   return (
-    <div className={status ? "wrapper sidebar_minimize" : "wrapper"}>
-      <Header />
-      <Sidebar />
-      {children}
+    <div>
+      <div className="layout-main-container">
+        <div className="layout-main">{props.children}</div>
+        <Footer />
+      </div>
+      <div className="layout-mask"></div>
     </div>
   );
 };
