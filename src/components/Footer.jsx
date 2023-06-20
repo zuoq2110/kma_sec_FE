@@ -1,6 +1,6 @@
 import React from "react";
 
-const Footer = () => {
+const AppFooter = () => {
   return (
     <div className="layout-footer">
       <img src="#" alt="Logo" height="20" className="mr-2" />
@@ -10,4 +10,4 @@ const Footer = () => {
   );
 };
 
-export default Footer;
+export default AppFooter;

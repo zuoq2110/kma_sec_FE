@@ -1,13 +1,13 @@
 import React, { useContext, useRef } from "react";
-import Footer from "../components/Footer";
 import {
   useEventListener,
   useMountEffect,
   useUnmountEffect,
 } from "primereact/hooks";
-import { LayoutContext } from "../context/layoutContext";
 import { classNames } from "primereact/utils";
+import { LayoutContext } from "../context/layoutContext";
 import AppTopbar from "../components/TopBar";
+import AppFooter from "../components/Footer";
 
 const DefaultLayout = (props) => {
   const { layoutConfig, layoutState, setLayoutState } =
@@ -52,13 +52,14 @@ const DefaultLayout = (props) => {
       }
     },
   });
+
   return (
     <div className={containerClass}>
       <AppTopbar ref={topbarRef} />
 
       <div className="layout-main-container">
         <div className="layout-main">{props.children}</div>
-        <Footer />
+        <AppFooter />
       </div>
       <div className="layout-mask"></div>
     </div>
