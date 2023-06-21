@@ -26,7 +26,7 @@ export default function Models() {
 
   const header = (
     <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-      <h3 className="m-0">Trained Models</h3>
+      <h4 className="m-0">Trained Models</h4>
       <span className="p-input-icon-left">
         <i className="pi pi-search" />
         <InputText
@@ -110,8 +110,11 @@ export default function Models() {
   return (
     <>
       <Toast ref={toast} />
+
       <div className="flex flex-wrap gap-2 align-items-center mb-4">
-        <h2 className="mr-3">Models</h2>
+        <h3 className="mr-3" style={{ marginBottom: 0 }}>
+          Models
+        </h3>
         <Divider layout="vertical" />
         <BreadCrumb
           model={items}
@@ -120,7 +123,7 @@ export default function Models() {
         />
       </div>
 
-      <div className="card">
+      <div className="card mb-5">
         <DataTable
           value={models}
           selection={selectedModels}
