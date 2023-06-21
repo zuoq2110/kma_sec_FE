@@ -1,174 +1,103 @@
-import React, { useContext } from "react";
-import Footer from "../components/Footer";
-import { Link, useLocation } from "react-router-dom";
+import React, { useContext, useState, useRef, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { Toast } from "primereact/toast";
+import { Divider } from "primereact/divider";
+import { BreadCrumb } from "primereact/breadcrumb";
+import { Button } from "primereact/button";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
 import { DataContext } from "../context/dataContext";
-import ToastNotification from "../components/ToastMessage";
 
-const WindowAnalysisDetail = () => {
+export default function WindowAnalysisDetail() {
   const { dataWindowAnalysis } = useContext(DataContext);
+  const [summary, setSumnary] = useState(null);
   const path = useLocation();
-  const pathNames = path.pathname.replace("/analysis/window/", "").trim();
-  const analysisId = pathNames.replace("/", "").trim();
+  const toast = useRef(null);
 
-  function notify(message, type) {
-    const content = {
-      title: "K-Security",
-      message: message,
-      // icon: "flaticon-alarm-1",
-    };
-
-    ToastNotification(content, type);
-  }
-
-  function save(analysisId) {
+  function save(analysisDetails) {
     try {
-      const json = JSON.stringify(analysisId);
+      const json = JSON.stringify(analysisDetails);
       const blob = new Blob([json], { type: "application/json" });
       const link = document.createElement("a");
       link.href = window.URL.createObjectURL(blob);
       link.download = "analysis";
       link.click();
-      notify("Export application's analysis successfully!", "success");
+      toast.current.show({
+        severity: "success",
+        summary: "Success",
+        detail: "Export successfully!",
+      });
     } catch (error) {
-      notify(error, "error");
+      toast.current.show({
+        severity: "error",
+        summary: "Failure",
+        detail: error,
+      });
     }
   }
 
+  const pathNames = path.pathname.split("/").slice(1);
+  const home = { icon: "pi pi-home", url: "/" };
+  const items = pathNames.map((name) => {
+    return { label: name.charAt(0).toUpperCase() + name.slice(1) };
+  });
+
+  useEffect(() => {
+    const _summary = Object.keys(dataWindowAnalysis)
+      .slice(0, -1)
+      .filter((key) => {
+        return key !== "MD5" && !key.includes("SHA");
+      })
+      .map((key) => {
+        return {
+          name: key,
+          value: dataWindowAnalysis[key],
+        };
+      });
+
+    setSumnary(_summary);
+  }, []);
+
   return (
     <>
-      <div className="main-panel">
-        <div className="container">
-          <div className="page-inner">
-            <div className="page-header">
-              <h4 className="page-title">Analysis</h4>
-              <ul className="breadcrumbs">
-                <li className="nav-home">
-                  <a href="/">
-                    <i className="flaticon-home"></i>
-                  </a>
-                </li>
-                <li className="separator">
-                  <i className="flaticon-right-arrow"></i>
-                </li>
-                <li className="nav-item">
-                  <Link to="/analysis/">Analysis</Link>
-                </li>
-                <li className="separator">
-                  <i className="flaticon-right-arrow"></i>
-                </li>
-                <li className="nav-item">
-                  <Link style={{ cursor: "default" }}>Windows</Link>
-                </li>
-                <li className="separator">
-                  <i className="flaticon-right-arrow"></i>
-                </li>
-                <li className="nav-item">
-                  <Link style={{ cursor: "default" }}>{analysisId}</Link>
-                </li>
-              </ul>
-            </div>
-            {dataWindowAnalysis && (
-              <div className="row justify-content-center">
-                <div className="col-12 col-lg-10 col-xl-9">
-                  <div className="row align-items-center">
-                    <div className="col">
-                      <h6 className="page-title">{""}</h6>
-                      <h4 className="page-title">ID: #{analysisId}</h4>
-                    </div>
-                    <div className="col-auto">
-                      <button
-                        id="btn-save"
-                        className="btn btn-primary ml-2"
-                        onClick={() => save(dataWindowAnalysis)}
-                      >
-                        Save
-                      </button>
-                    </div>
-                  </div>
-                  <div className="page-divider"></div>
-                  <div className="row">
-                    <div className="col-md-12">
-                      <div className="card card-invoice">
-                        <div className="card-header">
-                          <div className="invoice-header">
-                            <h3>MD5: {dataWindowAnalysis.MD5}</h3>
-                            <h3 className="invoice-title">
-                              <strong>{dataWindowAnalysis.malware_type}</strong>
-                            </h3>
-                          </div>
-                          <div className="invoice-desc"></div>
-                        </div>
-                        <div className="card-body">
-                          <div className="separator-solid"></div>
-                          <div className="row pt-3">
-                            <div className="col-md-12">
-                              <div className="invoice-detail">
-                                <div className="invoice-top">
-                                  <h3 className="title">
-                                    <strong>Summary</strong>
-                                  </h3>
-                                </div>
-                                <div className="invoice-item">
-                                  <div className="table-responsive">
-                                    <table className="table table-striped">
-                                      <thead>
-                                        <tr>
-                                          <td className="text-center">
-                                            <strong>Fields</strong>
-                                          </td>
-                                          <td className="text-center">
-                                            <strong>Values</strong>
-                                          </td>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        {Object.entries(dataWindowAnalysis)
-                                          .filter(
-                                            ([attribute]) =>
-                                              attribute !== "MD5" &&
-                                              !attribute.includes("SHA")
-                                          )
-                                          .map(([attribute, value]) => (
-                                            <tr key={attribute}>
-                                              <td className="text-center">
-                                                <strong>
-                                                  {attribute
-                                                    .split("_")
-                                                    .map(
-                                                      (word) =>
-                                                        word
-                                                          .charAt(0)
-                                                          .toUpperCase() +
-                                                        word.slice(1)
-                                                    )
-                                                    .join(" ")}
-                                                </strong>
-                                              </td>
-                                              <td className="text-center">
-                                                {value}
-                                              </td>
-                                            </tr>
-                                          ))}
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-        <Footer />
+      <Toast ref={toast}></Toast>
+
+      <div className="flex flex-wrap gap-2 align-items-center mb-5">
+        <h3 className="mr-3 mb-0">Analysis</h3>
+        <Divider layout="vertical" />
+        <BreadCrumb
+          model={items}
+          home={home}
+          style={{ background: "transparent", border: 0 }}
+        />
       </div>
+
+      {dataWindowAnalysis && (
+        <>
+          <div className="flex flex-wrap justify-content-between align-items-center mb-4">
+            <h5 className="mb-0">ID: #{pathNames.at(-1)}</h5>
+            <Button label="Save" onClick={() => save(dataWindowAnalysis)} />
+          </div>
+
+          <div className="card px-6 mb-5">
+            <div className="flex flex-wrap justify-content-between align-items-center mx-3 mt-2 mb-5">
+              <p className="my-0" style={{ fontSize: "1.25rem" }}>
+                MD5: {dataWindowAnalysis.MD5}
+              </p>
+              <h4 className="my-0">{dataWindowAnalysis.malware_type}</h4>
+            </div>
+
+            <Divider />
+
+            <h5 className="mx-3 mb-4">Summary</h5>
+
+            <DataTable value={summary} stripedRows>
+              <Column field="name" header="Feature" align={"center"}></Column>
+              <Column field="value" header="Value" align={"center"}></Column>
+            </DataTable>
+          </div>
+        </>
+      )}
     </>
   );
-};
-
-export default WindowAnalysisDetail;
+}

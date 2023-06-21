@@ -1,13 +1,13 @@
-import DefaultLayout from '../layout/DefaultLayout.jsx';
-import Analysis from '../pages/Analysis';
-import AndroidAnalysisDetail from '../pages/AndroidAnalysisDetail.jsx';
-import WindowAnalysisDetail from '../pages/WindowAnalysisDetail.jsx';
-import Models from '../pages/Models';
-import ModelsDetail from '../pages/ModelsDetail/ModelsDetail.jsx';
+import DefaultLayout from "../layout/DefaultLayout.jsx";
+import Analysis from "../pages/Analysis";
+import AndroidAnalysisDetail from "../pages/AndroidAnalysisDetail.jsx";
+import WindowAnalysisDetail from "../pages/WindowAnalysisDetail.jsx";
+import Models from "../pages/Models";
+import ModelsDetail from "../pages/ModelsDetail.jsx";
 
 export const privateRoutes = [
   {
-    path: '/',
+    path: "/",
     element: (
       <DefaultLayout>
         <Analysis />
@@ -15,7 +15,7 @@ export const privateRoutes = [
     ),
   },
   {
-    path: '/analysis',
+    path: "/analysis",
     element: (
       <DefaultLayout>
         <Analysis />
@@ -23,7 +23,7 @@ export const privateRoutes = [
     ),
   },
   {
-    path: '/analysis/android/:id',
+    path: "/analysis/android/:id",
     element: (
       <DefaultLayout>
         <AndroidAnalysisDetail />
@@ -31,7 +31,7 @@ export const privateRoutes = [
     ),
   },
   {
-    path: '/analysis/window/:id',
+    path: "/analysis/windows/:id",
     element: (
       <DefaultLayout>
         <WindowAnalysisDetail />
@@ -39,7 +39,7 @@ export const privateRoutes = [
     ),
   },
   {
-    path: '/models',
+    path: "/models",
     element: (
       <DefaultLayout>
         <Models />
@@ -47,7 +47,7 @@ export const privateRoutes = [
     ),
   },
   {
-    path: '/models/:id',
+    path: "/models/:id",
     element: (
       <DefaultLayout>
         <ModelsDetail />
