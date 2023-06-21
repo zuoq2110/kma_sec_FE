@@ -24,13 +24,6 @@ const AppTopbar = forwardRef((props, ref) => {
   return (
     <div className="layout-topbar">
       <Link to="/" className="layout-topbar-logo">
-        <img
-          src="https://b-f9-zpcloud.zdn.vn/4754067431337699379/422e578ea675772b2e64.jpg"
-          width="47.22px"
-          height={"35px"}
-          widt={"true"}
-          alt="logo"
-        />
         <span>KMA - Security</span>
       </Link>
 

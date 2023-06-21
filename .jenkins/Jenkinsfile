@@ -23,7 +23,10 @@ pipeline {
                 withDockerRegistry(credentialsId: 'registry-creds', url: 'https://registry.gitlab.com/k-security/portal-react') {
                     sh "docker pull $REGISTRY_IMAGE:latest || true"
                 }
-                sh "docker build --cache-from $REGISTRY_IMAGE:latest --tag $REGISTRY_IMAGE:$COMMIT_SHA ."
+                withCredentials([file(credentialsId: 'portal-env', variable: 'ENV')]) {
+                    sh 'cp $ENV .env.production.local'
+                    sh "docker build --cache-from $REGISTRY_IMAGE:latest --tag $REGISTRY_IMAGE:$COMMIT_SHA ."
+                }
             }
         }
 
