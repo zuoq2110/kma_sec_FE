@@ -3,7 +3,7 @@ import Analysis from "../pages/Analysis";
 import AndroidAnalysisDetail from "../pages/AndroidAnalysisDetail.jsx";
 import WindowAnalysisDetail from "../pages/WindowAnalysisDetail.jsx";
 import Models from "../pages/Models";
-import ModelsDetail from "../pages/ModelsDetail/ModelsDetail.jsx";
+import ModelsDetail from "../pages/ModelsDetail.jsx";
 
 export const privateRoutes = [
   {
