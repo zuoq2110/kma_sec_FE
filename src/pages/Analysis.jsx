@@ -11,7 +11,7 @@ import { Tag } from "primereact/tag";
 import { v4 as uuidv4 } from "uuid";
 import { DataContext } from "../context/dataContext";
 
-const KSECURITY_URL = "http://14.225.205.142:8000";
+const KSECURITY_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
 const CONTENT_TYPE_APK = "application/vnd.android.package-archive";
 
 export default function Analysis() {

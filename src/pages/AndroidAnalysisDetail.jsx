@@ -6,7 +6,7 @@ import { BreadCrumb } from "primereact/breadcrumb";
 import { Button } from "primereact/button";
 import { Accordion, AccordionTab } from "primereact/accordion";
 
-const KSECURITY_URL = "http://14.225.205.142:8000";
+const KSECURITY_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
 
 export default function AndroidAnalysisDetail() {
   const [analysisDetails, setAnalysisDetails] = useState();

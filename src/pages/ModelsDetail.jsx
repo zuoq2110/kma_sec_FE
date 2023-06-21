@@ -11,7 +11,7 @@ import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import moment from "moment";
 
-const KSECURITY_URL = "http://14.225.205.142:8000";
+const KSECURITY_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
 
 export default function ModelDetails() {
   const [modelDetails, setModelDetails] = useState(null);

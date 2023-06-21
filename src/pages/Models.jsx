@@ -10,7 +10,7 @@ import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
 import moment from "moment";
 
-const KSECURITY_URL = "http://14.225.205.142:8000";
+const KSECURITY_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
 
 const MODEL_TYPE_HDF5 = "HDF5/H5";
 const MODEL_TYPE_PICKLE = "PICKLE";
