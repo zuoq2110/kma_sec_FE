@@ -2,7 +2,7 @@ FROM node:20.3.0-alpine3.18 as build-stage
 
 WORKDIR /app
 
-COPY ["package.json", "package-lock.json", "/app/"]
+COPY ["package.json", "/app/"]
 
 RUN npm install --production --silent;
 
