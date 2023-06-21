@@ -8,7 +8,7 @@ import { Accordion, AccordionTab } from "primereact/accordion";
 
 const KSECURITY_URL = "http://14.225.205.142:8000";
 
-const AndroidAnalysisDetail = () => {
+export default function AndroidAnalysisDetail() {
   const [analysisDetails, setAnalysisDetails] = useState();
   const path = useLocation();
   const toast = useRef(null);
@@ -142,5 +142,3 @@ const AndroidAnalysisDetail = () => {
     </>
   );
 };
-
-export default AndroidAnalysisDetail;

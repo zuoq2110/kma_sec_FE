@@ -1,463 +1,307 @@
-import { ArcElement, Chart, Legend } from "chart.js";
-import moment from "moment";
-import React, { useEffect, useState } from "react";
-import { Pie } from "react-chartjs-2";
-import { CircularProgressbar } from "react-circular-progressbar";
-import "react-circular-progressbar/dist/styles.css";
-import ChartDataLabels from "chartjs-plugin-datalabels";
+import React, { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
+import { Toast } from "primereact/toast";
+import { BreadCrumb } from "primereact/breadcrumb";
+import { Divider } from "primereact/divider";
 import Plot from "react-plotly.js";
-import { Link, useLocation } from "react-router-dom";
-import Swal from "sweetalert2";
-import "./ModelsDetail.css";
-Chart.register(ArcElement, ChartDataLabels, Legend);
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
+import { Chart } from "primereact/chart";
+import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
+import "react-circular-progressbar/dist/styles.css";
+import moment from "moment";
 
-const BASE_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
+const KSECURITY_URL = "http://14.225.205.142:8000";
 
-const ModelsDetail = () => {
-  const [accuracy, setAccuracy] = useState(0);
-  const [precision, setPrecision] = useState(0);
-  const [recall, setRecall] = useState(0);
-  const [total, setTotal] = useState(0);
-  const [modelDetail, setModelDetail] = useState({});
-  const [modelDetailHistory, setModelDetailHistory] = useState({});
-  const url = useLocation();
-  const modelId = url.pathname.split("/")[2];
+export default function ModelDetails() {
+  const [modelDetails, setModelDetails] = useState(null);
+  const [history, setHistory] = useState(null);
+  const [datasetDistribute, setDatasetDistribute] = useState(null);
+  const path = useLocation();
+  const toast = useRef(null);
+
+  function formatDate(raw, format) {
+    const data = moment(raw).format("YYYY-MM-DD HH:mm:ss");
+    const date = moment.utc(data).toDate();
+
+    return moment(date).local().format(format);
+  }
+
+  const percentageBody = (rawData) => {
+    return `${rawData.percentage.toFixed(2)}%`;
+  };
+
+  const home = { icon: "pi pi-home", url: "/" };
+  const items = path.pathname
+    .split("/")
+    .slice(1)
+    .map((name) => {
+      return { label: name.charAt(0).toUpperCase() + name.slice(1) };
+    });
 
   useEffect(() => {
-    fetch(`${BASE_URL}/api/v1/models/${modelId}`, { method: "GET" })
-      .then((response) => response.json())
-      .then(({ data }) => {
-        const modelTotalDatasets = data.datasets.reduce(
-          (accumulator, dataset) => accumulator + dataset.quantity,
-          0
-        );
+    const id = path.pathname.split("/").at(-1);
+    const url = `${KSECURITY_URL}/api/v1/models/${id}`;
 
-        setAccuracy(data.accuracy > 0 ? Math.trunc(data.accuracy * 100) : 0);
-        setPrecision(data.precision > 0 ? Math.trunc(data.accuracy * 100) : 0);
-        setRecall(data.recall > 0 ? Math.trunc(data.accuracy * 100) : 0);
-        setTotal(modelTotalDatasets);
-        setModelDetail(data);
+    fetch(url, { method: "GET" })
+      .then((response) => response.json())
+      .then((response) => {
+        const datasets = response.data.datasets;
+        const _quantity = datasets
+          .map((dataset) => dataset.quantity)
+          .reduce((accumulator, quantity) => accumulator + quantity);
+        const _datasetDistribute = datasets.map((dataset) => {
+          return {
+            label: dataset.label,
+            quantity: dataset.quantity,
+            percentage: (dataset.quantity / _quantity) * 100,
+          };
+        });
+
+        setModelDetails(response.data);
+        setDatasetDistribute(_datasetDistribute);
       });
 
-    fetch(`${BASE_URL}/api/v1/models/${modelId}/history`, { method: "GET" })
+    fetch(`${url}/history`, { method: "GET" })
       .then((response) => response.json())
-      .then(({ data }) => {
-        setModelDetailHistory(data);
-      });
-  }, [modelId]);
-
-  function displayOptionsDialog(onSelected) {
-    Swal.fire({
-      title: "Export",
-      showCancelButton: false,
-      showConfirmButton: false,
-      html: `
-      <button class="swal2-confirm swal2-styled" value="h5">HDF5/H5</button>
-      <button class="swal2-confirm swal2-styled" value="tflite">TFLite</button>
-      `,
-      didOpen: () => {
-        const buttons =
-          Swal.getHtmlContainer().querySelectorAll(".swal2-confirm");
-        buttons.forEach((button) => {
-          button.addEventListener("click", () => {
-            onSelected(button.value);
-
-            Swal.close();
-          });
-        });
-      },
-    });
-  }
-
-  function download() {
-    switch (modelDetail.type) {
-      case "HDF5/H5":
-        displayOptionsDialog((format) => {
-          if (format !== null) {
-            window.location.href = `${BASE_URL}/api/v1/models/${modelId}/source?format=${format}`;
-          }
-        });
-        break;
-
-      case "PICKLE":
-        window.location.href = `${BASE_URL}/api/v1/models/${modelId}/source?format=pickle`;
-        break;
-
-      default:
-        break;
-    }
-  }
-
-  function bytesToSize(bytes) {
-    const sizes = ["B", "KB", "MB", "GB", "TB"];
-    if (bytes === 0) return "n/a";
-    const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)), 10);
-    if (i === 0) return `${bytes} ${sizes[i]})`;
-    return `${(bytes / 1000 ** i).toFixed(1)} ${sizes[i]}`;
-  }
+      .then((response) => setHistory(response.data));
+  }, []);
 
   return (
     <>
-      <div className="main-panel">
-        <div className="container">
-          <div className="page-inner">
-            <div className="page-header">
-              <h4 className="page-title">Models</h4>
-              <ul className="breadcrumbs">
-                <li className="nav-home">
-                  <Link to="/">
-                    <i className="flaticon-home"></i>
-                  </Link>
-                </li>
-                <li className="separator">
-                  <i className="flaticon-right-arrow"></i>
-                </li>
-                <li className="nav-item">
-                  <Link to="/models/">Models</Link>
-                </li>
-                <li className="separator">
-                  <i className="flaticon-right-arrow"></i>
-                </li>
-                <li className="nav-item">
-                  <Link>{modelId}</Link>
-                </li>
-              </ul>
+      <Toast ref={toast} />
+
+      <div className="flex flex-wrap gap-2 align-items-center mb-4">
+        <h3 className="mr-3" style={{ marginBottom: 0 }}>
+          Models
+        </h3>
+        <Divider layout="vertical" />
+        <BreadCrumb
+          model={items}
+          home={home}
+          style={{ background: "transparent", border: 0 }}
+        />
+      </div>
+
+      {modelDetails && (
+        <div className="grid">
+          <div className="col-12 md:col-6">
+            <div className="card">
+              <h5 className="mb-4">Overrall Performance</h5>
+              <div className="flex align-items-center mt-2">
+                <div
+                  className="flex flex-column align-items-center px-1"
+                  style={{ height: 150 }}
+                >
+                  <CircularProgressbar
+                    value={modelDetails.accuracy}
+                    maxValue={1}
+                    text={`${Math.round(modelDetails.accuracy * 100)}%`}
+                    strokeWidth={8}
+                    styles={buildStyles({
+                      textSize: "1.5rem",
+                      textColor: "var(--text-color)",
+                      pathColor: "#28a745",
+                    })}
+                    className="mb-2"
+                  />
+                  <span className="font-semibold mb-0">Accuracy</span>
+                </div>
+                <div
+                  className="flex flex-column align-items-center px-1"
+                  style={{ height: 150 }}
+                >
+                  <CircularProgressbar
+                    value={modelDetails.precision}
+                    maxValue={1}
+                    text={`${Math.round(modelDetails.precision * 100)}%`}
+                    strokeWidth={8}
+                    styles={buildStyles({
+                      textSize: "1.5rem",
+                      textColor: "var(--text-color)",
+                      pathColor: "#28a745",
+                    })}
+                    className="mb-2"
+                  />
+                  <span className="font-semibold mb-0">Precision</span>
+                </div>
+                <div
+                  className="flex flex-column align-items-center px-1"
+                  style={{ height: 150 }}
+                >
+                  <CircularProgressbar
+                    value={modelDetails.recall}
+                    maxValue={1}
+                    text={`${Math.round(modelDetails.recall * 100)}%`}
+                    strokeWidth={8}
+                    styles={buildStyles({
+                      textSize: "1.5rem",
+                      textColor: "var(--text-color)",
+                      pathColor: "#28a745",
+                    })}
+                    className="mb-2"
+                  />
+                  <span className="font-semibold mb-0">Recall</span>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="page-inner mt--5">
-            <div className="d-flex align-items-left align-items-md-center flex-column flex-md-row pb-4">
-              <div className="ml-md-auto py-2 py-md-0">
-                {/* <a
-                  href="/analysis/?model_id={{ model.id }}"
-                  className="btn btn-primary btn-border btn-round mr-2"
-                >
-                  Analyze
-                </a> */}
-                <button
-                  id="btn-export"
-                  className="btn btn-primary btn-round"
-                  onClick={download}
-                >
-                  Export
-                </button>
-              </div>
-            </div>
-            <div className="row mt--2">
-              <div
-                className="col-md-6"
-                style={{
-                  paddingLeft: 0,
-                }}
-              >
-                <div className="card full-height">
-                  <div className="card-body">
-                    <div className="card-title">Overall Summary</div>
-                    <div className="card-category">
-                      Overview information about accuracy prediction of model
-                    </div>
-                    <div className="model-summary-container d-flex flex-wrap justify-content-around pb-2 pt-4">
-                      <div className="px-2 pb-2 pb-md-0 text-center">
-                        <CircularProgressbar
-                          value={accuracy ? accuracy : 0}
-                          className="sumary-circle-stat accuracy-circle"
-                          strokeWidth={8}
-                          text={`${accuracy ? accuracy : 0}%`}
-                          styles={{
-                            path: {
-                              stroke: "#2BB930",
-                            },
-                            text: {
-                              fontSize: "31.5px",
-                              dominantBaseline: "central",
-                              fill: "#575962",
-                            },
-                          }}
-                        />
-                        <h6 className="fw-bold mt-3 mb-0">Accuracy</h6>
-                      </div>
-                      <div className="px-2 pb-2 pb-md-0 text-center">
-                        <CircularProgressbar
-                          value={precision}
-                          className="sumary-circle-stat precision-circle"
-                          strokeWidth={8}
-                          text={`${precision}%`}
-                          styles={{
-                            path: {
-                              stroke: "#2BB930",
-                            },
-                            text: {
-                              fontSize: "31.5px",
-                              dominantBaseline: "central",
-                              fill: "#575962",
-                            },
-                          }}
-                        />
-                        <h6 className="fw-bold mt-3 mb-0">Precision</h6>
-                      </div>
-                      <div className="px-2 pb-2 pb-md-0 text-center">
-                        <CircularProgressbar
-                          value={recall}
-                          className="sumary-circle-stat recall-circle"
-                          strokeWidth={8}
-                          text={`${recall}%`}
-                          styles={{
-                            path: {
-                              stroke: "#2BB930",
-                            },
-                            text: {
-                              fontSize: "31.5px",
-                              dominantBaseline: "central",
-                              fill: "#575962",
-                            },
-                          }}
-                        />
-                        <h6 className="fw-bold mt-3 mb-0">Recall</h6>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div
-                className="col-md-6"
-                style={{
-                  paddingRight: 0,
-                }}
-              >
-                <div className="card full-height">
-                  <div className="card-body">
-                    <div className="card-title">Details Information</div>
-                    <div className="row py-4 model-detail-info">
-                      <div className="col-md-6 d-flex flex-column">
-                        <div>
-                          <h5 className="fw-bold op-8">Version</h5>
-                          <h3 className="fw-bold">{modelDetail.version}</h3>
-                        </div>
-                        <div className="py-2"></div>
-                        <div>
-                          <h5 className="fw-bold op-8">File Size</h5>
-                          <h3 className="fw-bold">
-                            {bytesToSize(modelDetail.size)}
-                          </h3>
-                        </div>
-                      </div>
-                      <div className="col-md-6 d-flex flex-column justify-content-around">
-                        <div>
-                          <h5 className="fw-bold op-8">Type</h5>
-                          <h3 className="fw-bold text-uppercase">
-                            {modelDetail.type}
-                          </h3>
-                        </div>
-                        <div className="py-2"></div>
-                        <div>
-                          <h5 className="fw-bold op-8">Created Date</h5>
-                          <h3 className="fw-bold">
-                            {moment(modelDetail.create_at).format(
-                              "DD-MM-YYYY HH:mm:ss"
-                            )}
-                          </h3>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="row row-card-no-pd">
-              <div className="col-md-12">
-                <div className="card">
-                  <div className="card-header">
-                    <div className="card-head-row card-tools-still-right">
-                      <h4 className="card-title">Training History</h4>
-                    </div>
-                  </div>
-                  <div className="card-body row">
-                    <div className="col-md-6 chart-container">
-                      <Plot
-                        data={[
-                          {
-                            x: Array.from({ length: 101 }, (x, i) => i),
-                            y: modelDetailHistory
-                              ? modelDetailHistory["accuracy"]
-                              : [],
-                            mode: "lines",
-                            name: "train",
-                          },
-                          {
-                            x: Array.from({ length: 101 }, (x, i) => i),
-                            y: modelDetailHistory
-                              ? modelDetailHistory["val_accuracy"]
-                              : [],
-                            mode: "lines",
-                            name: "validation",
-                          },
-                        ]}
-                        layout={{
-                          width: 520,
-                          height: 440,
-                          title: "Model Accuracy",
-                          xaxis: {
-                            title: "Epoch",
-                          },
-                          yaxis: {
-                            title: "Accuracy",
-                          },
-                        }}
-                      />
-                    </div>
-                    <div className="col-md-6 chart-container">
-                      <Plot
-                        data={[
-                          {
-                            x: Array.from({ length: 101 }, (x, i) => i),
-                            y: modelDetailHistory
-                              ? modelDetailHistory["loss"]
-                              : [],
-                            mode: "lines",
-                            name: "train",
-                          },
-                          {
-                            x: Array.from({ length: 101 }, (x, i) => i),
-                            y: modelDetailHistory
-                              ? modelDetailHistory["val_loss"]
-                              : [],
-                            mode: "lines",
-                            name: "validation",
-                          },
-                        ]}
-                        layout={{
-                          width: 520,
-                          height: 440,
-                          title: "Model Loss",
-                          xaxis: {
-                            title: "Epoch",
-                          },
-                          yaxis: {
-                            title: "Loss",
-                          },
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="row row-card-no-pd">
-              <div className="col-md-12">
-                <div className="card">
-                  <div className="card-header">
-                    <div className="card-head-row card-tools-still-right">
-                      <h4 className="card-title">Dataset</h4>
-                    </div>
-                    <p className="card-category">
-                      Map of the distribution of labels used to train model
-                    </p>
-                  </div>
-                  <div className="card-body">
-                    <div className="row">
-                      <div className="col-md-6">
-                        <div className="table-responsive table-hover table-sales">
-                          <table className="table model-detail-dataset-table">
-                            <tbody>
-                              {modelDetail?.datasets &&
-                                modelDetail.datasets.map((data, index) => {
-                                  return (
-                                    <tr key={index}>
-                                      <td>{data.label}</td>
-                                      <td className="text-right">
-                                        {data.quantity}
-                                      </td>
-                                      <td className="text-right">
-                                        {`${(
-                                          (data.quantity / total) *
-                                          100
-                                        ).toFixed(2)}
-                                    %`}
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                      <div className="col-md-6">
-                        <div className="chart-container">
-                          {modelDetail && (
-                            <Pie
-                              data={{
-                                labels: modelDetail?.datasets?.map(
-                                  (dataset) => dataset.label
-                                ),
-                                datasets: [
-                                  {
-                                    data: modelDetail?.datasets?.map(
-                                      (dataset) =>
-                                        (dataset.quantity / total) * 100
-                                    ),
-                                    backgroundColor: modelDetail?.datasets?.map(
-                                      (_) =>
-                                        `#${Math.floor(
-                                          Math.random() * 16777215
-                                        ).toString(16)}`
-                                    ),
-                                    borderWidth: 1,
-                                  },
-                                ],
-                              }}
-                              options={{
-                                plugins: {
-                                  legend: {
-                                    display: true,
-                                    position: "right",
-                                    align: "start",
-                                    labels: {
-                                      fontColor: "rgb(154, 154, 154)",
-                                      fontSize: 14,
-                                      usePointStyle: "circle",
-                                      padding: 16,
-                                    },
-                                  },
-                                  datalabels: {
-                                    color: "#fff",
-                                    font: {
-                                      weight: "bold",
-                                      size: "16px",
-                                    },
-                                    anchor: "center",
-                                    align: "center",
-                                    formatter: (value) => {
-                                      return value > 3
-                                        ? parseInt(value) + "%"
-                                        : null;
-                                    },
-                                  },
-                                },
-                                responsive: true,
-                                maintainAspectRatio: false,
 
-                                layout: {
-                                  padding: {
-                                    left: 16,
-                                    right: 16,
-                                    top: 16,
-                                    bottom: 16,
-                                  },
-                                },
-                              }}
-                            />
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+          <div className="col-12 md:col-6">
+            <div className="card">
+              <h5 className="mb-4">Details Information</h5>
+              <div className="grid">
+                <div className="col-12 md:col-6">
+                  <p className="my-1">Version</p>
+                  <p className="text-xl font-semibold">
+                    {modelDetails.version}
+                  </p>
+                </div>
+                <div className="col-12 md:col-6">
+                  <p className="my-1">Type</p>
+                  <p className="text-xl font-semibold">{modelDetails.type}</p>
+                </div>
+                <div className="col-12 md:col-6">
+                  <p className="my-1">File Size</p>
+                  <p className="text-xl font-semibold">{modelDetails.type}</p>
+                </div>
+                <div className="col-12 md:col-6">
+                  <p className="my-1">Created Date</p>
+                  <p className="text-xl font-semibold">
+                    {formatDate(modelDetails.created_at, "DD/MM/YYYY")}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="col-12">
+            <div className="card">
+              <h5>Training History</h5>
+              <Divider />
+              <div className="grid">
+                <div className="col-12 md:col-6">
+                  <Plot
+                    data={[
+                      {
+                        x: Array.from({ length: 101 }, (x, i) => i),
+                        y: history ? history.accuracy : [],
+                        mode: "lines",
+                        name: "train",
+                      },
+                      {
+                        x: Array.from({ length: 101 }, (x, i) => i),
+                        y: history ? history.val_accuracy : [],
+                        mode: "lines",
+                        name: "validation",
+                      },
+                    ]}
+                    layout={{
+                      title: "Model Accuracy",
+                      xaxis: { title: "Epoch" },
+                      yaxis: { title: "Accuracy" },
+                    }}
+                    config={{
+                      responsive: true,
+                      displaylogo: false,
+                    }}
+                    useResizeHandler={true}
+                    className="w-full"
+                  />
+                </div>
+                <div className="col-12 md:col-6">
+                  <Plot
+                    data={[
+                      {
+                        x: Array.from({ length: 101 }, (x, i) => i),
+                        y: history ? history.loss : [],
+                        mode: "lines",
+                        name: "train",
+                      },
+                      {
+                        x: Array.from({ length: 101 }, (x, i) => i),
+                        y: history ? history.val_loss : [],
+                        mode: "lines",
+                        name: "validation",
+                      },
+                    ]}
+                    layout={{
+                      title: "Model Loss",
+                      xaxis: { title: "Epoch" },
+                      yaxis: { title: "Loss" },
+                    }}
+                    config={{
+                      responsive: true,
+                      displaylogo: false,
+                    }}
+                    useResizeHandler={true}
+                    className="w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="col-12 mb-5">
+            <div className="card">
+              <h5>Dataset</h5>
+              <p>Map of the distribution of labels used to train model</p>
+              <Divider />
+              <div className="grid">
+                <div className="col-12 md:col-6">
+                  <DataTable stripedRows value={datasetDistribute}>
+                    <Column field="label" header="Label" sortable></Column>
+                    <Column
+                      field="quantity"
+                      header="Quantity"
+                      sortable
+                      align={"center"}
+                    ></Column>
+                    <Column
+                      field="percentage"
+                      header="Percentage"
+                      body={percentageBody}
+                      sortable
+                      align={"center"}
+                    ></Column>
+                  </DataTable>
+                </div>
+                <div className="col-12 md:col-6">
+                  <Chart
+                    type="pie"
+                    data={{
+                      labels: datasetDistribute.map((dataset) => dataset.label),
+                      datasets: [
+                        {
+                          data: datasetDistribute.map(
+                            (dataset) => dataset.quantity
+                          ),
+                        },
+                      ],
+                    }}
+                    options={{
+                      plugins: {
+                        legend: {
+                          display: true,
+                          position: "right",
+                          align: "start",
+                          labels: {
+                            fontSize: 16,
+                            usePointStyle: "circle",
+                            padding: 8,
+                          },
+                        },
+                      },
+                      responsive: true,
+                      maintainAspectRatio: false,
+                    }}
+                  />
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </>
   );
-};
-
-export default ModelsDetail;
+}

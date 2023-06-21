@@ -8,7 +8,7 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { DataContext } from "../context/dataContext";
 
-const WindowAnalysisDetail = () => {
+export default function WindowAnalysisDetail() {
   const { dataWindowAnalysis } = useContext(DataContext);
   const [summary, setSumnary] = useState(null);
   const path = useLocation();
@@ -95,5 +95,3 @@ const WindowAnalysisDetail = () => {
     </>
   );
 };
-
-export default WindowAnalysisDetail;
