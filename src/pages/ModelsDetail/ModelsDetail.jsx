@@ -8,7 +8,6 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 import Plot from "react-plotly.js";
 import { Link, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
-import Footer from "../../components/Footer";
 import "./ModelsDetail.css";
 Chart.register(ArcElement, ChartDataLabels, Legend);
 
@@ -456,8 +455,6 @@ const ModelsDetail = () => {
             </div>
           </div>
         </div>
-
-        <Footer />
       </div>
     </>
   );

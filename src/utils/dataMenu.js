@@ -10,7 +10,7 @@ export const dataMenus = [
     ],
   },
   {
-    label: "Manager",
+    label: "Manage",
     items: [
       {
         label: "Models",

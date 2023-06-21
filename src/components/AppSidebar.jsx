@@ -2,7 +2,7 @@ import React from "react";
 import AppMenuitem from "./AppMenuItem";
 import { dataMenus } from "../utils/dataMenu";
 
-const Sidebar = () => {
+const AppSidebar = () => {
   return (
     <ul className="layout-menu">
       {dataMenus.map((item, i) => {
@@ -16,4 +16,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar;
+export default AppSidebar;
