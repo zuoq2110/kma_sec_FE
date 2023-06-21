@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   portal:
-    image: ksecurity/portal:latest
+    image: registry.gitlab.com/k-security/portal-react:latest
     env_file: .env
     ports:
       - '${PORT}:80'
