@@ -45,8 +45,14 @@ export default function WindowAnalysisDetail() {
   useEffect(() => {
     const _summary = Object.keys(dataWindowAnalysis)
       .slice(0, -1)
+      .filter((key) => {
+        return key !== "MD5" && !key.includes("SHA");
+      })
       .map((key) => {
-        return { name: key, value: dataWindowAnalysis[key] };
+        return {
+          name: key,
+          value: dataWindowAnalysis[key],
+        };
       });
 
     setSumnary(_summary);
@@ -94,4 +100,4 @@ export default function WindowAnalysisDetail() {
       )}
     </>
   );
-};
+}

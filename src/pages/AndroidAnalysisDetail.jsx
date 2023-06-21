@@ -124,13 +124,18 @@ export default function AndroidAnalysisDetail() {
               {summaryFeatures.map((field) => {
                 return (
                   <AccordionTab
+                    key={field}
                     header={field
                       .split("_")
-                      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
+                      )
                       .join(" ")}
                   >
-                    {analysisDetails[field].map((value) => (
-                      <p className="m-0">- {value}</p>
+                    {analysisDetails[field].map((value, index) => (
+                      <p className="m-0" key={index}>
+                        - {value}
+                      </p>
                     ))}
                   </AccordionTab>
                 );
@@ -141,4 +146,4 @@ export default function AndroidAnalysisDetail() {
       )}
     </>
   );
-};
+}
