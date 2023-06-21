@@ -19,11 +19,14 @@
     color: var(--surface-900);
     font-size: 1.5rem;
     font-weight: 500;
+    width: 300px;
     border-radius: 12px;
+
     img {
       height: 2.5rem;
       margin-right: 0.5rem;
     }
+
     &:focus {
       @include focused();
     }
@@ -66,6 +69,7 @@
 
   .layout-topbar-menu-button {
     display: none;
+
     i {
       font-size: 1.25rem;
     }
@@ -76,6 +80,7 @@
     padding: 0;
     list-style: none;
     display: flex;
+
     .layout-topbar-button {
       margin-left: 1rem;
     }

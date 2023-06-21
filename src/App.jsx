@@ -8,9 +8,8 @@ import "primereact/resources/themes/lara-light-blue/theme.css";
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
 import "primeflex/primeflex.css";
-import "./index.css";
-import "./flags.min.css";
-import "./styles/Layout/layout.scss";
+import "./styles/scss/index.scss";
+import "./styles/css/flags.min.css";
 
 export default function App() {
   return (
