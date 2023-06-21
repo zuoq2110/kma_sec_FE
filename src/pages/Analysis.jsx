@@ -108,15 +108,7 @@ export default function Analysis() {
   const emptyTemplate = () => {
     return (
       <div className="flex align-items-center flex-column">
-        <div
-          className="mt-3 p-5"
-          style={{
-            fontSize: "5em",
-            borderRadius: "50%",
-            backgroundColor: "var(--surface-b)",
-            color: "var(--surface-d)",
-          }}
-        >
+        <div className="mt-3">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             height="80"
@@ -142,12 +134,7 @@ export default function Analysis() {
           </svg>
         </div>
 
-        <h3
-          style={{ fontSize: "1.2em", color: "var(--text-color-secondary)" }}
-          className="my-5"
-        >
-          Drag and Drop files here
-        </h3>
+        <h3 className="my-6">Drag and Drop files here</h3>
         <p className="text-center">
           By submitting data above, you are agreeing to our{" "}
           <Link to="/">Terms of Service</Link> and{" "}
@@ -189,7 +176,7 @@ export default function Analysis() {
     const type = file.type === CONTENT_TYPE_APK ? "android" : "windows";
 
     formData.append("file", file);
-    setProgessState(99);
+    setProgessState(100);
     fetch(`${KSECURITY_URL}/api/v1/${type}/applications`, {
       method: "POST",
       body: formData,
@@ -227,7 +214,9 @@ export default function Analysis() {
       <Toast ref={toast}></Toast>
 
       <div className="flex flex-wrap gap-2 align-items-center mb-4">
-        <h2 className="mr-3">Analysis</h2>
+        <h3 className="mr-3" style={{ marginBottom: 0 }}>
+          Analysis
+        </h3>
         <Divider layout="vertical" />
         <BreadCrumb
           model={items}
@@ -236,7 +225,7 @@ export default function Analysis() {
         />
       </div>
 
-      <div className="card">
+      <div className="card mb-5">
         <Tooltip
           target=".custom-choose-btn"
           content="Choose"
