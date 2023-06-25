@@ -4,6 +4,7 @@ import AndroidAnalysisDetail from "../pages/AndroidAnalysisDetail.jsx";
 import WindowAnalysisDetail from "../pages/WindowAnalysisDetail.jsx";
 import Models from "../pages/Models";
 import ModelsDetail from "../pages/ModelsDetail.jsx";
+import LoginPage from "../pages/Login.jsx";
 
 export const privateRoutes = [
   {
@@ -53,5 +54,9 @@ export const privateRoutes = [
         <ModelsDetail />
       </DefaultLayout>
     ),
+  },
+  {
+    path: "/login",
+    element: <LoginPage />,
   },
 ];

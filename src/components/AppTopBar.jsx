@@ -4,22 +4,48 @@ import React, {
   useImperativeHandle,
   useRef,
 } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { classNames } from "primereact/utils";
 import { LayoutContext } from "../context/layoutContext";
+import { DataContext } from "../context/dataContext";
+import { OverlayPanel } from "primereact/overlaypanel";
+import { Menu } from "primereact/menu";
 
 const AppTopbar = forwardRef((props, ref) => {
+  const navigate = useNavigate();
   const { layoutState, onMenuToggle, showProfileSidebar } =
     useContext(LayoutContext);
+  const { dataUser, logout } = useContext(DataContext);
   const menubuttonRef = useRef(null);
   const topbarmenuRef = useRef(null);
   const topbarmenubuttonRef = useRef(null);
+  const dropdownBtn = useRef(null);
 
   useImperativeHandle(ref, () => ({
     menubutton: menubuttonRef.current,
     topbarmenu: topbarmenuRef.current,
     topbarmenubutton: topbarmenubuttonRef.current,
   }));
+
+  const items = [
+    {
+      label: "Information",
+      icon: "pi pi-fw pi-user-edit",
+      command: () => information(),
+    },
+    {
+      label: "Log out",
+      icon: "pi pi-fw pi-sign-out",
+      command: () => handleLogout(),
+    },
+  ];
+
+  const information = () => {};
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
 
   return (
     <div className="layout-topbar">
@@ -51,16 +77,33 @@ const AppTopbar = forwardRef((props, ref) => {
           "layout-topbar-menu-mobile-active": layoutState.profileSidebarVisible,
         })}
       >
-        <button type="button" className="p-link layout-topbar-button">
-          <i className="pi pi-user"></i>
-          <span>Profile</span>
-        </button>
-        <Link>
-          <button type="button" className="p-link layout-topbar-button">
-            <i className="pi pi-cog"></i>
-            <span>Settings</span>
+        {dataUser ? (
+          <button
+            type="button"
+            className="p-link layout-topbar-button"
+            onClick={(e) => dropdownBtn.current.toggle(e)}
+          >
+            <i className="pi pi-user"></i>
+            <span>Profile</span>
+            <OverlayPanel ref={dropdownBtn}>
+              <Menu model={items} style={{ border: "none" }} />
+            </OverlayPanel>
           </button>
-        </Link>
+        ) : (
+          <button
+            type="button"
+            className="p-link layout-topbar-button"
+            onClick={() => navigate("/login")}
+          >
+            <i className="pi pi-user"></i>
+            <span>Profile</span>
+          </button>
+        )}
+
+        <button type="button" className="p-link layout-topbar-button">
+          <i className="pi pi-cog"></i>
+          <span>Settings</span>
+        </button>
       </div>
     </div>
   );

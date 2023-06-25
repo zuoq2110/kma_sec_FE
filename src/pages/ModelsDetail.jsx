@@ -176,7 +176,7 @@ export default function ModelDetails() {
           </div>
 
           <div className="col-12">
-            <div className="card">
+            <div className="card" style={{ minHeight: "680px" }}>
               <h5>Training History</h5>
               <Divider />
               <div className="grid">
