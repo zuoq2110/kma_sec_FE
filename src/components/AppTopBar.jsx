@@ -9,8 +9,7 @@ import { classNames } from "primereact/utils";
 import { LayoutContext } from "../context/layoutContext";
 import { DataContext } from "../context/dataContext";
 import { OverlayPanel } from "primereact/overlaypanel";
-import { DataView } from "primereact/dataview";
-import { Button } from "primereact/button";
+import { Menu } from "primereact/menu";
 
 const AppTopbar = forwardRef((props, ref) => {
   const navigate = useNavigate();
@@ -29,25 +28,23 @@ const AppTopbar = forwardRef((props, ref) => {
   }));
 
   const items = [
-    { label: "Information", value: () => information() },
-    { label: "Log out", value: () => logout() },
+    {
+      label: "Information",
+      icon: "pi pi-fw pi-user-edit",
+      command: () => information(),
+    },
+    {
+      label: "Log out",
+      icon: "pi pi-fw pi-sign-out",
+      command: () => handleLogout(),
+    },
   ];
 
-  const information = () => {
-    console.log("test");
-  };
+  const information = () => {};
 
-  const dropdownTemplate = (item) => {
-    return (
-      <div className="col-12 cursor-pointer flex justify-center">
-        <Button
-          label={item.label}
-          link
-          className="w-full"
-          onClick={item.value}
-        />
-      </div>
-    );
+  const handleLogout = () => {
+    logout();
+    navigate("/");
   };
 
   return (
@@ -89,7 +86,7 @@ const AppTopbar = forwardRef((props, ref) => {
             <i className="pi pi-user"></i>
             <span>Profile</span>
             <OverlayPanel ref={dropdownBtn}>
-              <DataView value={items} itemTemplate={dropdownTemplate} />
+              <Menu model={items} style={{ border: "none" }} />
             </OverlayPanel>
           </button>
         ) : (
