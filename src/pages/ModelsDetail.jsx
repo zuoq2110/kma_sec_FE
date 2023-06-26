@@ -58,7 +58,7 @@ export default function ModelDetails() {
     fetch(`${url}/datasets`, { method: "GET" })
       .then((response) => response.json())
       .then((response) => {
-        const datasets = response.data.datasets;
+        const datasets = response.data;
         const _quantity = datasets
           .map((dataset) => dataset.quantity)
           .reduce((accumulator, quantity) => accumulator + quantity);
@@ -164,14 +164,14 @@ export default function ModelDetails() {
                   </p>
                 </div>
                 <div className="col-12 md:col-6">
-                  <p className="my-1">Type</p>
-                  <p className="text-xl font-semibold">{modelDetails.type}</p>
-                </div>
-                <div className="col-12 md:col-6">
                   <p className="my-1">Input Format</p>
                   <p className="text-xl font-semibold">
                     {modelDetails.input_format}
                   </p>
+                </div>
+                <div className="col-12 md:col-6">
+                  <p className="my-1">Type</p>
+                  <p className="text-xl font-semibold">{modelDetails.type}</p>
                 </div>
                 <div className="col-12 md:col-6">
                   <p className="my-1">Created Date</p>
