@@ -39,6 +39,8 @@ export default function ModelDetails() {
       return { label: name.charAt(0).toUpperCase() + name.slice(1) };
     });
 
+  console.log(modelDetails);
+
   useEffect(() => {
     const id = path.pathname.split("/").at(-1);
     const url = `${KSECURITY_URL}/api/v1/models/${id}`;
@@ -46,7 +48,17 @@ export default function ModelDetails() {
     fetch(url, { method: "GET" })
       .then((response) => response.json())
       .then((response) => {
-        const datasets = response.data.datasets;
+        setModelDetails(response.data);
+      });
+
+    fetch(`${url}/history`, { method: "GET" })
+      .then((response) => response.json())
+      .then((response) => setHistory(response.data));
+
+    fetch(`${url}/datasets`, { method: "GET" })
+      .then((response) => response.json())
+      .then((response) => {
+        const datasets = response.data;
         const _quantity = datasets
           .map((dataset) => dataset.quantity)
           .reduce((accumulator, quantity) => accumulator + quantity);
@@ -57,14 +69,8 @@ export default function ModelDetails() {
             percentage: (dataset.quantity / _quantity) * 100,
           };
         });
-
-        setModelDetails(response.data);
         setDatasetDistribute(_datasetDistribute);
       });
-
-    fetch(`${url}/history`, { method: "GET" })
-      .then((response) => response.json())
-      .then((response) => setHistory(response.data));
   }, []);
 
   return (
@@ -158,11 +164,13 @@ export default function ModelDetails() {
                   </p>
                 </div>
                 <div className="col-12 md:col-6">
-                  <p className="my-1">Type</p>
-                  <p className="text-xl font-semibold">{modelDetails.type}</p>
+                  <p className="my-1">Input Format</p>
+                  <p className="text-xl font-semibold">
+                    {modelDetails.input_format}
+                  </p>
                 </div>
                 <div className="col-12 md:col-6">
-                  <p className="my-1">File Size</p>
+                  <p className="my-1">Type</p>
                   <p className="text-xl font-semibold">{modelDetails.type}</p>
                 </div>
                 <div className="col-12 md:col-6">
@@ -242,64 +250,68 @@ export default function ModelDetails() {
             </div>
           </div>
 
-          <div className="col-12 mb-5">
-            <div className="card">
-              <h5>Dataset</h5>
-              <p>Map of the distribution of labels used to train model</p>
-              <Divider />
-              <div className="grid">
-                <div className="col-12 md:col-6">
-                  <DataTable stripedRows value={datasetDistribute}>
-                    <Column field="label" header="Label" sortable></Column>
-                    <Column
-                      field="quantity"
-                      header="Quantity"
-                      sortable
-                      align={"center"}
-                    ></Column>
-                    <Column
-                      field="percentage"
-                      header="Percentage"
-                      body={percentageBody}
-                      sortable
-                      align={"center"}
-                    ></Column>
-                  </DataTable>
-                </div>
-                <div className="col-12 md:col-6">
-                  <Chart
-                    type="pie"
-                    data={{
-                      labels: datasetDistribute.map((dataset) => dataset.label),
-                      datasets: [
-                        {
-                          data: datasetDistribute.map(
-                            (dataset) => dataset.quantity
-                          ),
-                        },
-                      ],
-                    }}
-                    options={{
-                      plugins: {
-                        legend: {
-                          display: true,
-                          position: "right",
-                          align: "start",
-                          labels: {
-                            fontSize: 16,
-                            usePointStyle: "circle",
-                            padding: 8,
+          {datasetDistribute && (
+            <div className="col-12 mb-5">
+              <div className="card">
+                <h5>Dataset</h5>
+                <p>Map of the distribution of labels used to train model</p>
+                <Divider />
+                <div className="grid">
+                  <div className="col-12 md:col-6">
+                    <DataTable stripedRows value={datasetDistribute}>
+                      <Column field="label" header="Label" sortable></Column>
+                      <Column
+                        field="quantity"
+                        header="Quantity"
+                        sortable
+                        align={"center"}
+                      ></Column>
+                      <Column
+                        field="percentage"
+                        header="Percentage"
+                        body={percentageBody}
+                        sortable
+                        align={"center"}
+                      ></Column>
+                    </DataTable>
+                  </div>
+                  <div className="col-12 md:col-6">
+                    <Chart
+                      type="pie"
+                      data={{
+                        labels: datasetDistribute.map(
+                          (dataset) => dataset.label
+                        ),
+                        datasets: [
+                          {
+                            data: datasetDistribute.map(
+                              (dataset) => dataset.quantity
+                            ),
+                          },
+                        ],
+                      }}
+                      options={{
+                        plugins: {
+                          legend: {
+                            display: true,
+                            position: "right",
+                            align: "start",
+                            labels: {
+                              fontSize: 16,
+                              usePointStyle: "circle",
+                              padding: 8,
+                            },
                           },
                         },
-                      },
-                      responsive: true,
-                      maintainAspectRatio: false,
-                    }}
-                  />
+                        responsive: true,
+                        maintainAspectRatio: false,
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       )}
     </>
