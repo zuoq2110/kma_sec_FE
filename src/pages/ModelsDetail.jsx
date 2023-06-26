@@ -39,6 +39,8 @@ export default function ModelDetails() {
       return { label: name.charAt(0).toUpperCase() + name.slice(1) };
     });
 
+  console.log(modelDetails);
+
   useEffect(() => {
     const id = path.pathname.split("/").at(-1);
     const url = `${KSECURITY_URL}/api/v1/models/${id}`;
@@ -162,8 +164,10 @@ export default function ModelDetails() {
                   <p className="text-xl font-semibold">{modelDetails.type}</p>
                 </div>
                 <div className="col-12 md:col-6">
-                  <p className="my-1">File Size</p>
-                  <p className="text-xl font-semibold">{modelDetails.type}</p>
+                  <p className="my-1">Input Format</p>
+                  <p className="text-xl font-semibold">
+                    {modelDetails.input_format}
+                  </p>
                 </div>
                 <div className="col-12 md:col-6">
                   <p className="my-1">Created Date</p>
