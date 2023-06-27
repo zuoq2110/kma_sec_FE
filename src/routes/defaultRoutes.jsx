@@ -1,15 +1,15 @@
 import DefaultLayout from "../layout/DefaultLayout";
-import Analysis from "../pages/Analysis";
-import AndroidAnalysisDetail from "../pages/AndroidAnalysisDetail";
+import Analyze from "../pages/Analyze";
+import AndroidAnalyzeDetail from "../pages/AndroidAnalyzeDetail";
 import LoginPage from "../pages/Login";
-import WindowAnalysisDetail from "../pages/WindowAnalysisDetail";
+import WindowAnalyzeDetail from "../pages/WindowAnalyzeDetail";
 
 export const defaultRoutes = [
   {
     path: "/",
     element: (
       <DefaultLayout>
-        <Analysis />
+        <Analyze />
       </DefaultLayout>
     ),
   },
@@ -18,26 +18,26 @@ export const defaultRoutes = [
     element: <LoginPage />,
   },
   {
-    path: "/analysis/",
+    path: "/analyze/",
     element: (
       <DefaultLayout>
-        <Analysis />
+        <Analyze />
       </DefaultLayout>
     ),
   },
   {
-    path: "/analysis/android/:id",
+    path: "/analyze/android/:id",
     element: (
       <DefaultLayout>
-        <AndroidAnalysisDetail />
+        <AndroidAnalyzeDetail />
       </DefaultLayout>
     ),
   },
   {
-    path: "/analysis/windows/:id",
+    path: "/analyze/windows/:id",
     element: (
       <DefaultLayout>
-        <WindowAnalysisDetail />
+        <WindowAnalyzeDetail />
       </DefaultLayout>
     ),
   },

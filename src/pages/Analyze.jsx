@@ -14,7 +14,7 @@ import { DataContext } from "../context/dataContext";
 const KSECURITY_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
 const CONTENT_TYPE_APK = "application/vnd.android.package-archive";
 
-export default function Analysis() {
+export default function Analyze() {
   const navigate = useNavigate();
   const [totalSize, setTotalSize] = useState(0);
   const [progressState, setProgessState] = useState(0);
@@ -22,8 +22,26 @@ export default function Analysis() {
   const toast = useRef(null);
   const { setDataWindowAnalysis } = useContext(DataContext);
 
-  const home = { icon: "pi pi-home", url: "/" };
-  const items = [{ label: "Analysis" }];
+  const iconItemTemplate = (item, options) => {
+    return (
+      <Link
+        className={options.className}
+        to={item.url}
+        style={{ color: "#495057" }}
+      >
+        {item.icon ? (
+          <span className={item.icon}></span>
+        ) : (
+          <span>{item.label}</span>
+        )}
+      </Link>
+    );
+  };
+
+  const home = { icon: "pi pi-home", url: "/", template: iconItemTemplate };
+  const items = [
+    { label: "Analyze", url: "/analyze/", template: iconItemTemplate },
+  ];
 
   const onSelect = (e) => {
     let _totalSize = 0;
@@ -191,11 +209,11 @@ export default function Analysis() {
 
         setTimeout(() => {
           if (type === "android") {
-            navigate(`/analysis/${type}/${response.data.analysis_id}`);
+            navigate(`/analyze/${type}/${response.data.analysis_id}`);
           } else {
             let analysis_window = uuidv4().replace(/-/g, "");
             setDataWindowAnalysis(response.data);
-            navigate(`/analysis/${type}/${analysis_window}`);
+            navigate(`/analyze/${type}/${analysis_window}`);
           }
         }, 1500);
       })
@@ -215,7 +233,7 @@ export default function Analysis() {
 
       <div className="flex flex-wrap gap-2 align-items-center mb-4">
         <h3 className="mr-3" style={{ marginBottom: 0 }}>
-          Analysis
+          Analyze
         </h3>
         <Divider layout="vertical" />
         <BreadCrumb

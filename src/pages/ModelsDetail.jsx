@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Toast } from "primereact/toast";
 import { BreadCrumb } from "primereact/breadcrumb";
 import { Divider } from "primereact/divider";
@@ -31,7 +31,23 @@ export default function ModelDetails() {
     return `${rawData.percentage.toFixed(2)}%`;
   };
 
-  const home = { icon: "pi pi-home", url: "/" };
+  const iconItemTemplate = (item, options) => {
+    return (
+      <Link
+        className={options.className}
+        to={item.url}
+        style={{ color: "#495057" }}
+      >
+        {item.icon ? (
+          <span className={item.icon}></span>
+        ) : (
+          <span>{item.label}</span>
+        )}
+      </Link>
+    );
+  };
+
+  const home = { icon: "pi pi-home", url: "/", template: iconItemTemplate };
   const items = path.pathname
     .split("/")
     .slice(1)
@@ -39,7 +55,19 @@ export default function ModelDetails() {
       return { label: name.charAt(0).toUpperCase() + name.slice(1) };
     });
 
-  console.log(modelDetails);
+  const itemsBreadCrumb = items.map((item) => {
+    if (item.label === "Models") {
+      return {
+        ...item,
+        url: "/models/",
+        template: iconItemTemplate,
+      };
+    } else {
+      return {
+        ...item,
+      };
+    }
+  });
 
   useEffect(() => {
     const id = path.pathname.split("/").at(-1);
@@ -83,7 +111,7 @@ export default function ModelDetails() {
         </h3>
         <Divider layout="vertical" />
         <BreadCrumb
-          model={items}
+          model={itemsBreadCrumb}
           home={home}
           style={{ background: "transparent", border: 0 }}
         />
@@ -258,7 +286,12 @@ export default function ModelDetails() {
                 <Divider />
                 <div className="grid">
                   <div className="col-12 md:col-6">
-                    <DataTable stripedRows value={datasetDistribute}>
+                    <DataTable
+                      stripedRows
+                      value={datasetDistribute}
+                      scrollable
+                      scrollHeight="340px"
+                    >
                       <Column field="label" header="Label" sortable></Column>
                       <Column
                         field="quantity"

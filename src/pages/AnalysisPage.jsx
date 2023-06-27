@@ -1,22 +1,18 @@
-import React, { useState, useEffect, useRef } from "react";
-
-import { Link } from "react-router-dom";
+import moment from "moment";
 import { BreadCrumb } from "primereact/breadcrumb";
+import { Column } from "primereact/column";
+import { DataTable } from "primereact/datatable";
 import { Divider } from "primereact/divider";
 import { InputText } from "primereact/inputtext";
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
-import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
-import moment from "moment";
+import React, { useEffect, useRef, useState } from "react";
+import { Calendar } from "primereact/calendar";
+import { Link } from "react-router-dom";
 
 const KSECURITY_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
 
-const MODEL_TYPE_HDF5 = "HDF5/H5";
-const MODEL_TYPE_PICKLE = "PICKLE";
-
-export default function Models() {
-  const [models, setModels] = useState(null);
+const AnalysisPage = () => {
+  const [analysisData, setAnalysisData] = useState(null);
   const [selectedModels, setSelectedModels] = useState(null);
   const [globalFilter, setGlobalFilter] = useState(null);
   const toast = useRef(null);
@@ -39,12 +35,12 @@ export default function Models() {
 
   const home = { icon: "pi pi-home", url: "/", template: iconItemTemplate };
   const items = [
-    { label: "Models", url: "/models/", template: iconItemTemplate },
+    { label: "Analysis", url: "/analysis", template: iconItemTemplate },
   ];
 
   const header = (
     <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-      <h4 className="m-0">Trained Models</h4>
+      <h4 className="m-0">Analysis</h4>
       <span className="p-input-icon-left">
         <i className="pi pi-search" />
         <InputText
@@ -55,14 +51,13 @@ export default function Models() {
       </span>
     </div>
   );
-
   const idTemplate = (rawData) => {
     return (
       <Link
-        to={`/models/${rawData.id}`}
+        to={`/analysis/android/${rawData.id}`}
         style={{ textDecoration: "none", color: "var(--primary-color)" }}
       >
-        {rawData.id}
+        {rawData.name}
       </Link>
     );
   };
@@ -74,55 +69,40 @@ export default function Models() {
     return moment(date).local().format("DD/MM/YYYY HH:mm:ss");
   };
 
-  const download = (id, type) => {
-    let format;
-
-    switch (type) {
-      case MODEL_TYPE_HDF5:
-        format = "h5";
-        break;
-
-      case MODEL_TYPE_PICKLE:
-        format = "pickle";
-        break;
-
-      default:
-        toast.current.show({
-          severity: "error",
-          summary: "Failure",
-          detail: "Invalid format!",
-          life: 3000,
-        });
-        return;
-    }
-
-    window.location.href = `${KSECURITY_URL}/api/v1/models/${id}/source?format=${format}`;
-    toast.current.show({
-      severity: "success",
-      summary: "Successful",
-      detail: "Download successfully!",
-      life: 3000,
-    });
-  };
-
-  const actionBodyTemplate = (rawData) => {
+  const dateFilterTemplate = (options) => {
     return (
-      <React.Fragment>
-        <Button
-          icon="pi pi-download"
-          rounded
-          outlined
-          className="mr-2"
-          onClick={() => download(rawData.id, rawData.type)}
-        />
-      </React.Fragment>
+      <Calendar
+        value={options.value}
+        onChange={(e) => options.filterCallback(e.value, options.index)}
+        dateFormat="mm/dd/yy"
+        placeholder="mm/dd/yyyy"
+        mask="99/99/9999"
+      />
     );
   };
 
   useEffect(() => {
-    fetch(`${KSECURITY_URL}/api/v1/models`, { method: "GET" })
+    const url = `${KSECURITY_URL}/api/v1/android/applications/`;
+    const params = {
+      page: 1,
+      limit: 100,
+    };
+
+    const urlWithParams = new URL(url);
+    Object.keys(params).forEach((key) =>
+      urlWithParams.searchParams.append(key, params[key])
+    );
+    fetch(urlWithParams, { method: "GET" })
       .then((response) => response.json())
-      .then((response) => setModels(response.data));
+      .then((response) => {
+        const data = response.data.map((item) => {
+          return {
+            ...item,
+            created_at: new Date(item.created_at),
+          };
+        });
+        setAnalysisData(data);
+      });
   }, []);
 
   return (
@@ -131,7 +111,7 @@ export default function Models() {
 
       <div className="flex flex-wrap gap-2 align-items-center mb-4">
         <h3 className="mr-3" style={{ marginBottom: 0 }}>
-          Models
+          Analysis
         </h3>
         <Divider layout="vertical" />
         <BreadCrumb
@@ -143,7 +123,7 @@ export default function Models() {
 
       <div className="card mb-5">
         <DataTable
-          value={models}
+          value={analysisData}
           selection={selectedModels}
           onSelectionChange={(e) => setSelectedModels(e.value)}
           dataKey="id"
@@ -155,45 +135,46 @@ export default function Models() {
           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
           globalFilter={globalFilter}
           header={header}
+          showAddButton={false}
         >
           <Column selectionMode="multiple" exportable={false}></Column>
           <Column
-            field="id"
-            header="ID"
-            body={idTemplate}
-            style={{ minWidth: "16rem" }}
-          ></Column>
-          <Column
-            field="version"
-            header="Version"
+            field="name"
+            header="Name"
             sortable
-            style={{ minWidth: "12rem" }}
+            body={idTemplate}
+            style={{ minWidth: "10rem" }}
           ></Column>
           <Column
-            field="type"
+            field="package"
+            header="Package"
+            style={{ minWidth: "10rem" }}
+          ></Column>
+          <Column
+            field="malware_type"
             header="Type"
             style={{ minWidth: "10rem" }}
+            filter
+            filterPlaceholder="Search by type"
+            showAddButton={false}
           ></Column>
-          <Column
-            field="input_format"
-            header="Input Format"
-            style={{ minWidth: "10rem" }}
-          ></Column>
+
           <Column
             field="created_at"
             header="Created Date"
             sortable
             body={createdDateTemplate}
             style={{ minWidth: "16rem" }}
-          ></Column>
-          <Column
-            field="id"
-            body={actionBodyTemplate}
-            exportable={false}
-            style={{ minWidth: "8rem" }}
+            filter
+            // filterField="date"
+            dataType="date"
+            filterElement={dateFilterTemplate}
+            showAddButton={false}
           ></Column>
         </DataTable>
       </div>
     </>
   );
-}
+};
+
+export default AnalysisPage;
