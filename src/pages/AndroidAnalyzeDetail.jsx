@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Toast } from "primereact/toast";
 import { Divider } from "primereact/divider";
 import { BreadCrumb } from "primereact/breadcrumb";
@@ -8,7 +8,7 @@ import { Accordion, AccordionTab } from "primereact/accordion";
 
 const KSECURITY_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
 
-export default function AndroidAnalysisDetail() {
+export default function AndroidAnalyzeDetail() {
   const [analysisDetails, setAnalysisDetails] = useState();
   const path = useLocation();
   const toast = useRef(null);
@@ -44,10 +44,42 @@ export default function AndroidAnalysisDetail() {
       });
   }
 
+  const iconItemTemplate = (item, options) => {
+    return (
+      <Link
+        className={options.className}
+        to={item.url}
+        style={{ color: "#495057" }}
+      >
+        {item.icon ? (
+          <span className={item.icon}></span>
+        ) : (
+          <span>{item.label}</span>
+        )}
+      </Link>
+    );
+  };
+
   const pathNames = path.pathname.split("/").slice(1);
-  const home = { icon: "pi pi-home", url: "/" };
+  const titlePage =
+    pathNames[0].charAt(0).toUpperCase() + pathNames[0].slice(1);
+  const home = { icon: "pi pi-home", url: "/", template: iconItemTemplate };
   const items = pathNames.map((name) => {
     return { label: name.charAt(0).toUpperCase() + name.slice(1) };
+  });
+
+  const itemsBreadCrumb = items.map((item, index) => {
+    if (index === 0) {
+      return {
+        ...item,
+        url: `/${item.label.toLocaleLowerCase()}/`,
+        template: iconItemTemplate,
+      };
+    } else {
+      return {
+        ...item,
+      };
+    }
   });
 
   const summaryFeatures = [
@@ -71,10 +103,10 @@ export default function AndroidAnalysisDetail() {
       <Toast ref={toast}></Toast>
 
       <div className="flex flex-wrap gap-2 align-items-center mb-5">
-        <h3 className="mr-3 mb-0">Analysis</h3>
+        <h3 className="mr-3 mb-0">{titlePage}</h3>
         <Divider layout="vertical" />
         <BreadCrumb
-          model={items}
+          model={itemsBreadCrumb}
           home={home}
           style={{ background: "transparent", border: 0 }}
         />
@@ -120,7 +152,7 @@ export default function AndroidAnalysisDetail() {
 
             <h5 className="mx-3">Summary</h5>
 
-            <Accordion multiple activeIndex={[1]}>
+            <Accordion multiple>
               {summaryFeatures.map((field) => {
                 return (
                   <AccordionTab

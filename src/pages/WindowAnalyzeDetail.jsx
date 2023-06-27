@@ -1,5 +1,5 @@
 import React, { useContext, useState, useRef, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Toast } from "primereact/toast";
 import { Divider } from "primereact/divider";
 import { BreadCrumb } from "primereact/breadcrumb";
@@ -8,7 +8,7 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { DataContext } from "../context/dataContext";
 
-export default function WindowAnalysisDetail() {
+export default function WindowAnalyzeDetail() {
   const { dataWindowAnalysis } = useContext(DataContext);
   const [summary, setSumnary] = useState(null);
   const path = useLocation();
@@ -36,10 +36,40 @@ export default function WindowAnalysisDetail() {
     }
   }
 
+  const iconItemTemplate = (item, options) => {
+    return (
+      <Link
+        className={options.className}
+        to={item.url}
+        style={{ color: "#495057" }}
+      >
+        {item.icon ? (
+          <span className={item.icon}></span>
+        ) : (
+          <span>{item.label}</span>
+        )}
+      </Link>
+    );
+  };
+
   const pathNames = path.pathname.split("/").slice(1);
-  const home = { icon: "pi pi-home", url: "/" };
+  const home = { icon: "pi pi-home", url: "/", template: iconItemTemplate };
   const items = pathNames.map((name) => {
     return { label: name.charAt(0).toUpperCase() + name.slice(1) };
+  });
+
+  const itemsBreadCrumb = items.map((item) => {
+    if (item.label === "Analyze") {
+      return {
+        ...item,
+        url: "/analyze",
+        template: iconItemTemplate,
+      };
+    } else {
+      return {
+        ...item,
+      };
+    }
   });
 
   useEffect(() => {
@@ -66,7 +96,7 @@ export default function WindowAnalysisDetail() {
         <h3 className="mr-3 mb-0">Analysis</h3>
         <Divider layout="vertical" />
         <BreadCrumb
-          model={items}
+          model={itemsBreadCrumb}
           home={home}
           style={{ background: "transparent", border: 0 }}
         />

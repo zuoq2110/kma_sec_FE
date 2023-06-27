@@ -54,7 +54,7 @@ const AnalysisPage = () => {
   const idTemplate = (rawData) => {
     return (
       <Link
-        to={`/analyze/android/${rawData.id}`}
+        to={`/analysis/android/${rawData.id}`}
         style={{ textDecoration: "none", color: "var(--primary-color)" }}
       >
         {rawData.name}
