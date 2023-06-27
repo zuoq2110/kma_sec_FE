@@ -21,8 +21,26 @@ export default function Models() {
   const [globalFilter, setGlobalFilter] = useState(null);
   const toast = useRef(null);
 
-  const home = { icon: "pi pi-home", url: "/" };
-  const items = [{ label: "Models" }];
+  const iconItemTemplate = (item, options) => {
+    return (
+      <Link
+        className={options.className}
+        to={item.url}
+        style={{ color: "#495057" }}
+      >
+        {item.icon ? (
+          <span className={item.icon}></span>
+        ) : (
+          <span>{item.label}</span>
+        )}
+      </Link>
+    );
+  };
+
+  const home = { icon: "pi pi-home", url: "/", template: iconItemTemplate };
+  const items = [
+    { label: "Models", url: "/models/", template: iconItemTemplate },
+  ];
 
   const header = (
     <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
@@ -154,13 +172,11 @@ export default function Models() {
           <Column
             field="type"
             header="Type"
-            sortable
             style={{ minWidth: "10rem" }}
           ></Column>
           <Column
             field="input_format"
             header="Input Format"
-            sortable
             style={{ minWidth: "10rem" }}
           ></Column>
           <Column
