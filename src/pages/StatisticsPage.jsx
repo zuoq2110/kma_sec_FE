@@ -1,19 +1,17 @@
-import moment from "moment";
+import React, { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import { Toast } from "primereact/toast";
 import { BreadCrumb } from "primereact/breadcrumb";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
 import { Divider } from "primereact/divider";
 import { InputText } from "primereact/inputtext";
-import { Toast } from "primereact/toast";
-import React, { useEffect, useRef, useState } from "react";
 import { Calendar } from "primereact/calendar";
-import { Link } from "react-router-dom";
+import moment from "moment";
+import { getAnalysis } from "../services/kSecurityService";
 
-const KSECURITY_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
-
-const AnalysisPage = () => {
+export default function StatisticsPage() {
   const [analysisData, setAnalysisData] = useState(null);
-  const [selectedModels, setSelectedModels] = useState(null);
   const [globalFilter, setGlobalFilter] = useState(null);
   const toast = useRef(null);
 
@@ -34,9 +32,7 @@ const AnalysisPage = () => {
   };
 
   const home = { icon: "pi pi-home", url: "/", template: iconItemTemplate };
-  const items = [
-    { label: "Analysis", url: "/analysis", template: iconItemTemplate },
-  ];
+  const items = [{ label: "Statistics" }];
 
   const header = (
     <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
@@ -54,7 +50,7 @@ const AnalysisPage = () => {
   const idTemplate = (rawData) => {
     return (
       <Link
-        to={`/analysis/android/${rawData.id}`}
+        to={`/statistics/android/${rawData.id}`}
         style={{ textDecoration: "none", color: "var(--primary-color)" }}
       >
         {rawData.name}
@@ -82,27 +78,13 @@ const AnalysisPage = () => {
   };
 
   useEffect(() => {
-    const url = `${KSECURITY_URL}/api/v1/android/applications/`;
-    const params = {
-      page: 1,
-      limit: 100,
-    };
-
-    const urlWithParams = new URL(url);
-    Object.keys(params).forEach((key) =>
-      urlWithParams.searchParams.append(key, params[key])
-    );
-    fetch(urlWithParams, { method: "GET" })
-      .then((response) => response.json())
-      .then((response) => {
-        const data = response.data.map((item) => {
-          return {
-            ...item,
-            created_at: new Date(item.created_at),
-          };
-        });
-        setAnalysisData(data);
+    getAnalysis().then((response) => {
+      const data = response.data.map((item) => {
+        return { ...item, created_at: new Date(item.created_at) };
       });
+
+      setAnalysisData(data);
+    });
   }, []);
 
   return (
@@ -111,7 +93,7 @@ const AnalysisPage = () => {
 
       <div className="flex flex-wrap gap-2 align-items-center mb-4">
         <h3 className="mr-3" style={{ marginBottom: 0 }}>
-          Analysis
+          Statistics
         </h3>
         <Divider layout="vertical" />
         <BreadCrumb
@@ -124,20 +106,17 @@ const AnalysisPage = () => {
       <div className="card mb-5">
         <DataTable
           value={analysisData}
-          selection={selectedModels}
-          onSelectionChange={(e) => setSelectedModels(e.value)}
           dataKey="id"
           paginator
           removableSort
-          rows={10}
-          rowsPerPageOptions={[10, 25, 50, 100]}
+          rows={20}
+          rowsPerPageOptions={[10, 20, 50, 100]}
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
           globalFilter={globalFilter}
           header={header}
           showAddButton={false}
         >
-          <Column selectionMode="multiple" exportable={false}></Column>
           <Column
             field="name"
             header="Name"
@@ -166,7 +145,7 @@ const AnalysisPage = () => {
             body={createdDateTemplate}
             style={{ minWidth: "16rem" }}
             filter
-            // filterField="date"
+            filterField="created_at"
             dataType="date"
             filterElement={dateFilterTemplate}
             showAddButton={false}
@@ -175,6 +154,4 @@ const AnalysisPage = () => {
       </div>
     </>
   );
-};
-
-export default AnalysisPage;
+}
