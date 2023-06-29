@@ -3,17 +3,20 @@ import { Link, useLocation } from "react-router-dom";
 import { Toast } from "primereact/toast";
 import { BreadCrumb } from "primereact/breadcrumb";
 import { Divider } from "primereact/divider";
-import Plot from "react-plotly.js";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Chart } from "primereact/chart";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
+import Plot from "react-plotly.js";
 import "react-circular-progressbar/dist/styles.css";
 import moment from "moment";
+import {
+  getModelDetails,
+  getModelHistory,
+  getModelDatasets,
+} from "../services/kSecurityService";
 
-const KSECURITY_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
-
-export default function ModelDetails() {
+export default function ModelDetailsPage() {
   const [modelDetails, setModelDetails] = useState(null);
   const [history, setHistory] = useState(null);
   const [datasetDistribute, setDatasetDistribute] = useState(null);
@@ -71,34 +74,24 @@ export default function ModelDetails() {
 
   useEffect(() => {
     const id = path.pathname.split("/").at(-1);
-    const url = `${KSECURITY_URL}/api/v1/models/${id}`;
 
-    fetch(url, { method: "GET" })
-      .then((response) => response.json())
-      .then((response) => {
-        setModelDetails(response.data);
+    getModelDetails(id).then((response) => setModelDetails(response.data));
+    getModelHistory(id).then((response) => setHistory(response.data));
+    getModelDatasets(id).then((response) => {
+      const datasets = response.data;
+      const _quantity = datasets
+        .map((dataset) => dataset.quantity)
+        .reduce((accumulator, quantity) => accumulator + quantity);
+      const _datasetDistribute = datasets.map((dataset) => {
+        return {
+          label: dataset.label,
+          quantity: dataset.quantity,
+          percentage: (dataset.quantity / _quantity) * 100,
+        };
       });
 
-    fetch(`${url}/history`, { method: "GET" })
-      .then((response) => response.json())
-      .then((response) => setHistory(response.data));
-
-    fetch(`${url}/datasets`, { method: "GET" })
-      .then((response) => response.json())
-      .then((response) => {
-        const datasets = response.data;
-        const _quantity = datasets
-          .map((dataset) => dataset.quantity)
-          .reduce((accumulator, quantity) => accumulator + quantity);
-        const _datasetDistribute = datasets.map((dataset) => {
-          return {
-            label: dataset.label,
-            quantity: dataset.quantity,
-            percentage: (dataset.quantity / _quantity) * 100,
-          };
-        });
-        setDatasetDistribute(_datasetDistribute);
-      });
+      setDatasetDistribute(_datasetDistribute);
+    });
   }, []);
 
   return (

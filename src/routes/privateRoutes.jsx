@@ -1,7 +1,7 @@
 import DefaultLayout from "../layout/DefaultLayout.jsx";
 import WindowAnalyzeDetail from "../pages/WindowAnalyzeDetail.jsx";
 import ModelsPage from "../pages/ModelsPage.jsx";
-import ModelsDetail from "../pages/ModelsDetail.jsx";
+import ModelDetailsPage from "../pages/ModelDetailsPage.jsx";
 import LoginPage from "../pages/Login.jsx";
 import StatisticsPage from "../pages/StatisticsPage.jsx";
 import Analyze from "../pages/Analyze.jsx";
@@ -60,7 +60,7 @@ export const privateRoutes = [
     path: "/models/:id",
     element: (
       <DefaultLayout>
-        <ModelsDetail />
+        <ModelDetailsPage />
       </DefaultLayout>
     ),
   },
