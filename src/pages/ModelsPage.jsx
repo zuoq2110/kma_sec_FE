@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-
 import { Link } from "react-router-dom";
 import { BreadCrumb } from "primereact/breadcrumb";
 import { Divider } from "primereact/divider";
@@ -9,15 +8,13 @@ import { Column } from "primereact/column";
 import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
 import moment from "moment";
-
-const KSECURITY_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
+import { getModels, getModelSource } from "../services/kSecurityService";
 
 const MODEL_TYPE_HDF5 = "HDF5/H5";
 const MODEL_TYPE_PICKLE = "PICKLE";
 
-export default function Models() {
+export default function ModelsPage() {
   const [models, setModels] = useState(null);
-  const [selectedModels, setSelectedModels] = useState(null);
   const [globalFilter, setGlobalFilter] = useState(null);
   const toast = useRef(null);
 
@@ -38,9 +35,7 @@ export default function Models() {
   };
 
   const home = { icon: "pi pi-home", url: "/", template: iconItemTemplate };
-  const items = [
-    { label: "Models", url: "/models/", template: iconItemTemplate },
-  ];
+  const items = [{ label: "Models" }];
 
   const header = (
     <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
@@ -56,18 +51,18 @@ export default function Models() {
     </div>
   );
 
-  const idTemplate = (rawData) => {
+  const versionBody = (rawData) => {
     return (
       <Link
         to={`/models/${rawData.id}`}
         style={{ textDecoration: "none", color: "var(--primary-color)" }}
       >
-        {rawData.id}
+        {rawData.version}
       </Link>
     );
   };
 
-  const createdDateTemplate = (rawData) => {
+  const createdDateBody = (rawData) => {
     const data = moment(rawData.created_at).format("YYYY-MM-DD HH:mm:ss");
     const date = moment.utc(data).toDate();
 
@@ -96,7 +91,7 @@ export default function Models() {
         return;
     }
 
-    window.location.href = `${KSECURITY_URL}/api/v1/models/${id}/source?format=${format}`;
+    getModelSource(id, format);
     toast.current.show({
       severity: "success",
       summary: "Successful",
@@ -105,7 +100,7 @@ export default function Models() {
     });
   };
 
-  const actionBodyTemplate = (rawData) => {
+  const actionBody = (rawData) => {
     return (
       <React.Fragment>
         <Button
@@ -120,9 +115,7 @@ export default function Models() {
   };
 
   useEffect(() => {
-    fetch(`${KSECURITY_URL}/api/v1/models`, { method: "GET" })
-      .then((response) => response.json())
-      .then((response) => setModels(response.data));
+    getModels().then((response) => setModels(response.data));
   }, []);
 
   return (
@@ -144,29 +137,20 @@ export default function Models() {
       <div className="card mb-5">
         <DataTable
           value={models}
-          selection={selectedModels}
-          onSelectionChange={(e) => setSelectedModels(e.value)}
           dataKey="id"
           paginator
           removableSort
-          rows={10}
-          rowsPerPageOptions={[10, 25, 50, 100]}
+          rows={20}
+          rowsPerPageOptions={[10, 20, 50, 100]}
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
           globalFilter={globalFilter}
           header={header}
         >
-          <Column selectionMode="multiple" exportable={false}></Column>
-          <Column
-            field="id"
-            header="ID"
-            body={idTemplate}
-            style={{ minWidth: "16rem" }}
-          ></Column>
           <Column
             field="version"
             header="Version"
-            sortable
+            body={versionBody}
             style={{ minWidth: "12rem" }}
           ></Column>
           <Column
@@ -183,12 +167,11 @@ export default function Models() {
             field="created_at"
             header="Created Date"
             sortable
-            body={createdDateTemplate}
+            body={createdDateBody}
             style={{ minWidth: "16rem" }}
           ></Column>
           <Column
-            field="id"
-            body={actionBodyTemplate}
+            body={actionBody}
             exportable={false}
             style={{ minWidth: "8rem" }}
           ></Column>

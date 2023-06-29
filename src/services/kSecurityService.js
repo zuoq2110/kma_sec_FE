@@ -1,9 +1,32 @@
 const BASE_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
 
-export async function getAnalysis(page = 1, limit = 20) {
-    const params = { page: page, limit: limit };
-    const url = new URL(`${BASE_URL}/api/v1/android/applications`);
+export async function getModels(page = 1, limit = 20) {
+  const params = { page: page, limit: limit };
+  const url = new URL(`${BASE_URL}/api/v1/models`);
 
-    Object.keys(params).forEach((key) => url.searchParams.append(key, params[key]));
-    return await fetch(url, { method: "GET" }).then((response) => response.json());
+  Object.keys(params).forEach((key) =>
+    url.searchParams.append(key, params[key])
+  );
+  return await fetch(url, { method: "GET" }).then((response) =>
+    response.json()
+  );
+}
+
+export async function getModelSource(id, format) {
+  const url = new URL(`${BASE_URL}/api/v1/models/${id}/source`);
+
+  url.searchParams.append("format", format);
+  window.location.href = url;
+}
+
+export async function getAnalysis(page = 1, limit = 20) {
+  const params = { page: page, limit: limit };
+  const url = new URL(`${BASE_URL}/api/v1/android/applications`);
+
+  Object.keys(params).forEach((key) =>
+    url.searchParams.append(key, params[key])
+  );
+  return await fetch(url, { method: "GET" }).then((response) =>
+    response.json()
+  );
 }

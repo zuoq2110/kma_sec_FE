@@ -32,7 +32,7 @@ export default function StatisticsPage() {
   };
 
   const home = { icon: "pi pi-home", url: "/", template: iconItemTemplate };
-  const items = [{ label: "Statistics", template: iconItemTemplate }];
+  const items = [{ label: "Statistics" }];
 
   const header = (
     <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
