@@ -9,9 +9,9 @@ export const dataMenusAuth = [{
     {
         label: "Manage",
         items: [{
-                label: "Analysis",
+                label: "Statistics",
                 icon: "pi pi-fw pi-chart-line",
-                to: "/analysis/",
+                to: "/statistics/",
             },
             {
                 label: "Models",

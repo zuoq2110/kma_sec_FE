@@ -3,7 +3,7 @@ import WindowAnalyzeDetail from "../pages/WindowAnalyzeDetail.jsx";
 import Models from "../pages/Models";
 import ModelsDetail from "../pages/ModelsDetail.jsx";
 import LoginPage from "../pages/Login.jsx";
-import AnalysisPage from "../pages/AnalysisPage.jsx";
+import StatisticsPage from "../pages/StatisticsPage.jsx";
 import Analyze from "../pages/Analyze.jsx";
 import AndroidAnalyzeDetail from "../pages/AndroidAnalyzeDetail.jsx";
 
@@ -33,7 +33,7 @@ export const privateRoutes = [
     ),
   },
   {
-    path: "/analysis/android/:id",
+    path: "/statistics/android/:id",
     element: (
       <DefaultLayout>
         <AndroidAnalyzeDetail />
@@ -69,10 +69,10 @@ export const privateRoutes = [
     element: <LoginPage />,
   },
   {
-    path: "/analysis",
+    path: "/statistics",
     element: (
       <DefaultLayout>
-        <AnalysisPage />
+        <StatisticsPage />
       </DefaultLayout>
     ),
   },
