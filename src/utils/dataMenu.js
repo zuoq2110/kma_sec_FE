@@ -1,3 +1,5 @@
+const MONITOR_SERVICE_URL = process.env.REACT_APP_MONITOR_SERVICE_URL;
+
 export const dataMenusAuth = [{
         label: "Dashboard",
         items: [{
@@ -21,7 +23,7 @@ export const dataMenusAuth = [{
             {
                 label: "Monitor",
                 icon: "pi pi-fw pi-desktop",
-                to: "http://14.225.205.142:3000/",
+                to: MONITOR_SERVICE_URL,
             },
         ],
     },
