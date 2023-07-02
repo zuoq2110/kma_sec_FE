@@ -3,10 +3,12 @@ import { Link } from "react-router-dom";
 import { BreadCrumb } from "primereact/breadcrumb";
 import { Divider } from "primereact/divider";
 import { InputText } from "primereact/inputtext";
+import { Dropdown } from "primereact/dropdown";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
+import { FilterMatchMode, FilterOperator } from "primereact/api";
 import moment from "moment";
 import { getModels, getModelSource } from "../services/kSecurityService";
 
@@ -15,7 +17,8 @@ const MODEL_TYPE_PICKLE = "PICKLE";
 
 export default function ModelsPage() {
   const [models, setModels] = useState(null);
-  const [globalFilter, setGlobalFilter] = useState(null);
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [filters, setFilters] = useState(null);
   const toast = useRef(null);
 
   const iconItemTemplate = (item, options) => {
@@ -37,14 +40,22 @@ export default function ModelsPage() {
   const home = { icon: "pi pi-home", url: "/", template: iconItemTemplate };
   const items = [{ label: "Models" }];
 
+  const onGlobalFilterChange = (event) => {
+    const value = event.target.value;
+    let _filters = { ...filters };
+
+    _filters["global"].value = value;
+    setFilters(_filters);
+    setGlobalFilter(value);
+  };
   const header = (
     <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
       <h4 className="m-0">Trained Models</h4>
       <span className="p-input-icon-left">
         <i className="pi pi-search" />
         <InputText
-          type="search"
-          onInput={(e) => setGlobalFilter(e.target.value)}
+          value={globalFilter}
+          onChange={onGlobalFilterChange}
           placeholder="Search..."
         />
       </span>
@@ -61,7 +72,30 @@ export default function ModelsPage() {
       </Link>
     );
   };
+  const inputFormatFilterElement = (options) => {
+    const typeItemTemplate = (option) => {
+      return (
+        <span className={`customer-badge input-format-${option}`}>
+          {option}
+        </span>
+      );
+    };
 
+    const inputFormats = models?.map((model) => model["input_format"]) ?? [];
+
+    return (
+      <Dropdown
+        value={options.value}
+        options={[...new Set(inputFormats)]}
+        onChange={(e) => options.filterCallback(e.value, options.index)}
+        itemTemplate={typeItemTemplate}
+        placeholder="Select a Type"
+        className="p-column-filter"
+        showClear
+        filterMatchMode="equals"
+      />
+    );
+  };
   const createdDateBody = (rawData) => {
     const data = moment(rawData.created_at).format("YYYY-MM-DD HH:mm:ss");
     const date = moment.utc(data).toDate();
@@ -102,19 +136,26 @@ export default function ModelsPage() {
 
   const actionBody = (rawData) => {
     return (
-      <React.Fragment>
-        <Button
-          icon="pi pi-download"
-          rounded
-          outlined
-          className="mr-2"
-          onClick={() => download(rawData.id, rawData.type)}
-        />
-      </React.Fragment>
+      <Button
+        icon="pi pi-download"
+        rounded
+        outlined
+        className="mr-2"
+        onClick={() => download(rawData.id, rawData.type)}
+      />
     );
   };
 
   useEffect(() => {
+    const _filters = {
+      global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+      input_format: {
+        operator: FilterOperator.OR,
+        constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }],
+      },
+    };
+
+    setFilters(_filters);
     getModels().then((response) => setModels(response.data));
   }, []);
 
@@ -144,7 +185,7 @@ export default function ModelsPage() {
           rowsPerPageOptions={[10, 20, 50, 100]}
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
-          globalFilter={globalFilter}
+          filters={filters}
           header={header}
         >
           <Column
@@ -161,7 +202,10 @@ export default function ModelsPage() {
           <Column
             field="input_format"
             header="Input Format"
+            filter
+            filterElement={inputFormatFilterElement}
             style={{ minWidth: "10rem" }}
+            showAddButton={false}
           ></Column>
           <Column
             field="created_at"

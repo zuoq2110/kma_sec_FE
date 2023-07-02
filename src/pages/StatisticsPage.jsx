@@ -51,7 +51,7 @@ export default function StatisticsPage() {
         <InputText
           value={globalFilter}
           onChange={onGlobalFilterChange}
-          placeholder="Keyword Search"
+          placeholder="Search..."
         />
       </span>
     </div>
