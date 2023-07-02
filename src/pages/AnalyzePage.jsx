@@ -32,7 +32,7 @@ function AnalyzeBreadCrumb() {
   };
 
   const home = { icon: "pi pi-home", url: "/", template: template };
-  const items = [{ label: "Analyze", url: "/analyze/" }];
+  const items = [{ label: "Analyze" }];
 
   return (
     <BreadCrumb
@@ -246,7 +246,7 @@ export default function AnalyzePage() {
     setTimeout(() => {
       let id = response.data.analysis_id;
 
-      if (type == "windows") {
+      if (type === "windows") {
         id = uuidv4().replace(/-/g, "");
         setDataWindowAnalysis(response.data);
       }
