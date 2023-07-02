@@ -6,6 +6,7 @@ import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
 import { Divider } from "primereact/divider";
 import { InputText } from "primereact/inputtext";
+import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from "primereact/calendar";
 import moment from "moment";
 import { getAnalysis } from "../services/kSecurityService";
@@ -58,13 +59,34 @@ export default function StatisticsPage() {
     );
   };
 
+  const typeFilterElement = (options) => {
+    const typeItemTemplate = (option) => {
+      return (
+        <span className={`customer-badge status-${option}`}>{option}</span>
+      );
+    };
+
+    const types = analysisData?.map((element) => element["malware_type"]) ?? [];
+
+    return (
+      <Dropdown
+        value={options.value}
+        options={[...new Set(types)]}
+        onChange={(e) => options.filterCallback(e.value, options.index)}
+        itemTemplate={typeItemTemplate}
+        placeholder="Select a Type"
+        className="p-column-filter"
+        showClear
+      />
+    );
+  };
+
   const createdDateTemplate = (rawData) => {
     const data = moment(rawData.created_at).format("YYYY-MM-DD HH:mm:ss");
     const date = moment.utc(data).toDate();
 
     return moment(date).local().format("DD/MM/YYYY HH:mm:ss");
   };
-
   const dateFilterTemplate = (options) => {
     return (
       <Calendar
@@ -134,10 +156,9 @@ export default function StatisticsPage() {
             header="Type"
             style={{ minWidth: "10rem" }}
             filter
-            filterPlaceholder="Search by type"
+            filterElement={typeFilterElement}
             showAddButton={false}
           ></Column>
-
           <Column
             field="created_at"
             header="Created Date"
@@ -148,7 +169,6 @@ export default function StatisticsPage() {
             filterField="created_at"
             dataType="date"
             filterElement={dateFilterTemplate}
-            showAddButton={false}
           ></Column>
         </DataTable>
       </div>
