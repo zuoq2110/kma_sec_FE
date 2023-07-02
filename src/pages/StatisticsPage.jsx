@@ -6,13 +6,16 @@ import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
 import { Divider } from "primereact/divider";
 import { InputText } from "primereact/inputtext";
+import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
+import { FilterMatchMode, FilterOperator } from "primereact/api";
 import moment from "moment";
 import { getAnalysis } from "../services/kSecurityService";
 
 export default function StatisticsPage() {
   const [analysisData, setAnalysisData] = useState(null);
-  const [globalFilter, setGlobalFilter] = useState(null);
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [filters, setFilters] = useState(null);
   const toast = useRef(null);
 
   const iconItemTemplate = (item, options) => {
@@ -31,8 +34,14 @@ export default function StatisticsPage() {
     );
   };
 
-  const home = { icon: "pi pi-home", url: "/", template: iconItemTemplate };
-  const items = [{ label: "Statistics" }];
+  const onGlobalFilterChange = (event) => {
+    const value = event.target.value;
+    let _filters = { ...filters };
+
+    _filters["global"].value = value;
+    setFilters(_filters);
+    setGlobalFilter(value);
+  };
 
   const header = (
     <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
@@ -40,8 +49,8 @@ export default function StatisticsPage() {
       <span className="p-input-icon-left">
         <i className="pi pi-search" />
         <InputText
-          type="search"
-          onInput={(e) => setGlobalFilter(e.target.value)}
+          value={globalFilter}
+          onChange={onGlobalFilterChange}
           placeholder="Search..."
         />
       </span>
@@ -58,13 +67,35 @@ export default function StatisticsPage() {
     );
   };
 
+  const typeFilterElement = (options) => {
+    const typeItemTemplate = (option) => {
+      return (
+        <span className={`customer-badge status-${option}`}>{option}</span>
+      );
+    };
+
+    const types = analysisData?.map((element) => element["malware_type"]) ?? [];
+
+    return (
+      <Dropdown
+        value={options.value}
+        options={[...new Set(types)]}
+        onChange={(e) => options.filterCallback(e.value, options.index)}
+        itemTemplate={typeItemTemplate}
+        placeholder="Select a Type"
+        className="p-column-filter"
+        showClear
+        filterMatchMode="equals"
+      />
+    );
+  };
+
   const createdDateTemplate = (rawData) => {
     const data = moment(rawData.created_at).format("YYYY-MM-DD HH:mm:ss");
     const date = moment.utc(data).toDate();
 
     return moment(date).local().format("DD/MM/YYYY HH:mm:ss");
   };
-
   const dateFilterTemplate = (options) => {
     return (
       <Calendar
@@ -77,7 +108,23 @@ export default function StatisticsPage() {
     );
   };
 
+  const home = { icon: "pi pi-home", url: "/", template: iconItemTemplate };
+  const items = [{ label: "Statistics" }];
+
   useEffect(() => {
+    const _filters = {
+      global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+      malware_type: {
+        operator: FilterOperator.OR,
+        constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }],
+      },
+      created_at: {
+        operator: FilterOperator.AND,
+        constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }],
+      },
+    };
+
+    setFilters(_filters);
     getAnalysis().then((response) => {
       const data = response.data.map((item) => {
         return { ...item, created_at: new Date(item.created_at) };
@@ -106,16 +153,14 @@ export default function StatisticsPage() {
       <div className="card mb-5">
         <DataTable
           value={analysisData}
-          dataKey="id"
           paginator
+          filters={filters}
           removableSort
           rows={20}
           rowsPerPageOptions={[10, 20, 50, 100]}
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
-          globalFilter={globalFilter}
           header={header}
-          showAddButton={false}
         >
           <Column
             field="name"
@@ -134,10 +179,9 @@ export default function StatisticsPage() {
             header="Type"
             style={{ minWidth: "10rem" }}
             filter
-            filterPlaceholder="Search by type"
+            filterElement={typeFilterElement}
             showAddButton={false}
           ></Column>
-
           <Column
             field="created_at"
             header="Created Date"
@@ -148,7 +192,6 @@ export default function StatisticsPage() {
             filterField="created_at"
             dataType="date"
             filterElement={dateFilterTemplate}
-            showAddButton={false}
           ></Column>
         </DataTable>
       </div>

@@ -1,5 +1,5 @@
 import DefaultLayout from "../layout/DefaultLayout";
-import Analyze from "../pages/Analyze";
+import AnalyzePage from "../pages/AnalyzePage";
 import AndroidAnalyzeDetail from "../pages/AndroidAnalyzeDetail";
 import LoginPage from "../pages/Login";
 import WindowAnalyzeDetail from "../pages/WindowAnalyzeDetail";
@@ -9,7 +9,7 @@ export const defaultRoutes = [
     path: "/",
     element: (
       <DefaultLayout>
-        <Analyze />
+        <AnalyzePage />
       </DefaultLayout>
     ),
   },
@@ -21,7 +21,7 @@ export const defaultRoutes = [
     path: "/analyze/",
     element: (
       <DefaultLayout>
-        <Analyze />
+        <AnalyzePage />
       </DefaultLayout>
     ),
   },
