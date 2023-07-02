@@ -1,5 +1,15 @@
 const BASE_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
 
+export async function analyze(file, type) {
+  const formData = new FormData();
+  const url = new URL(`${BASE_URL}/api/v1/${type}/applications`);
+  let response;
+
+  formData.append("file", file);
+  response = await fetch(url, { method: "POST", body: formData });
+  return await response.json();
+}
+
 export async function getModels(page = 1, limit = 20) {
   const params = { page: page, limit: limit };
   const url = new URL(`${BASE_URL}/api/v1/models`);

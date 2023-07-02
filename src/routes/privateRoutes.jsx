@@ -4,7 +4,7 @@ import ModelsPage from "../pages/ModelsPage.jsx";
 import ModelDetailsPage from "../pages/ModelDetailsPage.jsx";
 import LoginPage from "../pages/Login.jsx";
 import StatisticsPage from "../pages/StatisticsPage.jsx";
-import Analyze from "../pages/Analyze.jsx";
+import AnalyzePage from "../pages/AnalyzePage.jsx";
 import AndroidAnalyzeDetail from "../pages/AndroidAnalyzeDetail.jsx";
 
 export const privateRoutes = [
@@ -12,7 +12,7 @@ export const privateRoutes = [
     path: "/",
     element: (
       <DefaultLayout>
-        <Analyze />
+        <AnalyzePage />
       </DefaultLayout>
     ),
   },
@@ -20,7 +20,7 @@ export const privateRoutes = [
     path: "/analyze",
     element: (
       <DefaultLayout>
-        <Analyze />
+        <AnalyzePage />
       </DefaultLayout>
     ),
   },

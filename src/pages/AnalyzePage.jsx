@@ -10,19 +10,12 @@ import { Tooltip } from "primereact/tooltip";
 import { Tag } from "primereact/tag";
 import { v4 as uuidv4 } from "uuid";
 import { DataContext } from "../context/dataContext";
+import { analyze } from "../services/kSecurityService";
 
-const KSECURITY_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
 const CONTENT_TYPE_APK = "application/vnd.android.package-archive";
 
-export default function Analyze() {
-  const navigate = useNavigate();
-  const [totalSize, setTotalSize] = useState(0);
-  const [progressState, setProgessState] = useState(0);
-  const fileUploadRef = useRef(null);
-  const toast = useRef(null);
-  const { setDataWindowAnalysis } = useContext(DataContext);
-
-  const iconItemTemplate = (item, options) => {
+function AnalyzeBreadCrumb() {
+  const template = (item, options) => {
     return (
       <Link
         className={options.className}
@@ -30,45 +23,36 @@ export default function Analyze() {
         style={{ color: "#495057" }}
       >
         {item.icon ? (
-          <span className={item.icon}></span>
+          <span className={`p-menuitem-icon ${item.icon}`}></span>
         ) : (
-          <span>{item.label}</span>
+          <span className={options.labelClassName}>{item.label}</span>
         )}
       </Link>
     );
   };
 
-  const home = { icon: "pi pi-home", url: "/", template: iconItemTemplate };
-  const items = [
-    { label: "Analyze", url: "/analyze/", template: iconItemTemplate },
-  ];
+  const home = { icon: "pi pi-home", url: "/", template: template };
+  const items = [{ label: "Analyze", url: "/analyze/" }];
 
-  const onSelect = (e) => {
-    let _totalSize = 0;
-    let files = e.files;
+  return (
+    <BreadCrumb
+      model={items}
+      home={home}
+      style={{ background: "transparent", border: 0 }}
+    />
+  );
+}
 
-    Object.keys(files).forEach((key) => {
-      _totalSize += files[key].size || 0;
-    });
-
-    setTotalSize(_totalSize);
-  };
-
-  const onClear = () => {
-    setTotalSize(0);
-  };
-
-  const onTemplateRemove = (file, callback) => {
-    setTotalSize(totalSize - file.size);
-    callback();
-  };
+function AnalyzeFileUpload({ maxFileSize, progress, uploadHandler }) {
+  const [currentSize, setCurrentSizeState] = useState(0);
+  const fileUpload = useRef(null);
 
   const headerTemplate = (options) => {
     const { className, chooseButton, uploadButton, cancelButton } = options;
-    const value = totalSize / 1000000;
-    const formatedValue =
-      fileUploadRef && fileUploadRef.current
-        ? fileUploadRef.current.formatSize(totalSize)
+    const size = currentSize / 1000000;
+    const fileSize =
+      fileUpload && fileUpload.current
+        ? fileUpload.current.formatSize(currentSize)
         : "0 B";
 
     return (
@@ -84,9 +68,9 @@ export default function Analyze() {
         {uploadButton}
         {cancelButton}
         <div className="flex align-items-center gap-3 ml-auto">
-          <span>{formatedValue} / 100 MB</span>
+          <span>{fileSize} / 100 MB</span>
           <ProgressBar
-            value={value}
+            value={size}
             showValue={false}
             style={{ width: "10rem", height: "12px" }}
           ></ProgressBar>
@@ -94,12 +78,15 @@ export default function Analyze() {
       </div>
     );
   };
-
   const progressBarTemplate = () => {
-    return <ProgressBar value={progressState} showValue={false} />;
+    return <ProgressBar value={progress} showValue={false} />;
   };
-
   const itemTemplate = (file, props) => {
+    const onRemove = (file, callback) => {
+      setCurrentSizeState(currentSize - file.size);
+      callback();
+    };
+
     return (
       <div className="flex align-items-center flex-wrap">
         <div className="flex align-items-center" style={{ width: "60%" }}>
@@ -117,15 +104,22 @@ export default function Analyze() {
           type="button"
           icon="pi pi-times"
           className="p-button-outlined p-button-rounded p-button-danger ml-auto"
-          onClick={() => onTemplateRemove(file, props.onRemove)}
+          onClick={() => onRemove(file, props.onRemove)}
         />
       </div>
     );
   };
-
   const emptyTemplate = () => {
+    const onClick = (_) => {
+      document.getElementsByTagName("input")[0].click();
+    };
+
     return (
-      <div className="flex align-items-center flex-column">
+      <div
+        className="flex align-items-center flex-column"
+        onClick={onClick}
+        style={{ cursor: "pointer" }}
+      >
         <div className="mt-3">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -152,7 +146,7 @@ export default function Analyze() {
           </svg>
         </div>
 
-        <h3 className="my-6">Drag and Drop files here</h3>
+        <h3 className="my-5">Drag and Drop files here</h3>
         <p className="text-center">
           By submitting data above, you are agreeing to our{" "}
           <Link to="/">Terms of Service</Link> and{" "}
@@ -169,7 +163,6 @@ export default function Analyze() {
       </div>
     );
   };
-
   const chooseOptions = {
     icon: "pi pi-fw pi-images",
     iconOnly: true,
@@ -188,43 +181,77 @@ export default function Analyze() {
       "custom-cancel-btn p-button-danger p-button-rounded p-button-outlined",
   };
 
-  const handler = async (e) => {
-    const formData = new FormData();
-    const file = e.files[0];
+  const onSelect = (e) => {
+    let files = e.files;
+    let size = 0;
+
+    Object.keys(files).forEach((key) => {
+      size += files[key].size || 0;
+    });
+    setCurrentSizeState(size);
+  };
+  const onClear = () => {
+    setCurrentSizeState(0);
+  };
+
+  return (
+    <FileUpload
+      ref={fileUpload}
+      maxFileSize={maxFileSize}
+      onSelect={onSelect}
+      onClear={onClear}
+      headerTemplate={headerTemplate}
+      progressBarTemplate={progressBarTemplate}
+      itemTemplate={itemTemplate}
+      emptyTemplate={emptyTemplate}
+      chooseOptions={chooseOptions}
+      uploadOptions={uploadOptions}
+      cancelOptions={cancelOptions}
+      customUpload={true}
+      uploadHandler={uploadHandler}
+    />
+  );
+}
+
+export default function AnalyzePage() {
+  const navigate = useNavigate();
+  const { setDataWindowAnalysis } = useContext(DataContext);
+  const [progress, setProgessState] = useState(0);
+  const toast = useRef(null);
+
+  const uploadHandler = async (event) => {
+    const file = event.files[0];
     const type = file.type === CONTENT_TYPE_APK ? "android" : "windows";
+    let response;
 
-    formData.append("file", file);
     setProgessState(100);
-    fetch(`${KSECURITY_URL}/api/v1/${type}/applications`, {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then((response) => {
-        toast.current.show({
-          severity: "success",
-          summary: "Success",
-          detail: "File uploaded!",
-        });
+    try {
+      response = await analyze(file, type);
+    } catch (error) {
+      toast.current.show({
+        severity: "error",
+        summary: "Failure",
+        detail: error,
+      });
+      return;
+    } finally {
+      setProgessState(0);
+    }
 
-        setTimeout(() => {
-          if (type === "android") {
-            navigate(`/analyze/${type}/${response.data.analysis_id}`);
-          } else {
-            let analysis_window = uuidv4().replace(/-/g, "");
-            setDataWindowAnalysis(response.data);
-            navigate(`/analyze/${type}/${analysis_window}`);
-          }
-        }, 1500);
-      })
-      .catch((error) => {
-        toast.current.show({
-          severity: "error",
-          summary: "Failure",
-          detail: error,
-        });
-      })
-      .finally(() => setProgessState(0));
+    toast.current.show({
+      severity: "success",
+      summary: "Success",
+      detail: "File uploaded!",
+    });
+    setTimeout(() => {
+      let id = response.data.analysis_id;
+
+      if (type == "windows") {
+        id = uuidv4().replace(/-/g, "");
+        setDataWindowAnalysis(response.data);
+      }
+      navigate(`/analyze/${type}/${id}`);
+    }, 1500);
   };
 
   return (
@@ -236,11 +263,7 @@ export default function Analyze() {
           Analyze
         </h3>
         <Divider layout="vertical" />
-        <BreadCrumb
-          model={items}
-          home={home}
-          style={{ background: "transparent", border: 0 }}
-        />
+        <AnalyzeBreadCrumb />
       </div>
 
       <div className="card mb-5">
@@ -251,7 +274,7 @@ export default function Analyze() {
         />
         <Tooltip
           target=".custom-upload-btn"
-          content="Upload"
+          content="Analyze"
           position="bottom"
         />
         <Tooltip
@@ -260,20 +283,10 @@ export default function Analyze() {
           position="bottom"
         />
 
-        <FileUpload
-          ref={fileUploadRef}
+        <AnalyzeFileUpload
           maxFileSize={100000000}
-          onSelect={onSelect}
-          onClear={onClear}
-          headerTemplate={headerTemplate}
-          progressBarTemplate={progressBarTemplate}
-          itemTemplate={itemTemplate}
-          emptyTemplate={emptyTemplate}
-          chooseOptions={chooseOptions}
-          uploadOptions={uploadOptions}
-          cancelOptions={cancelOptions}
-          customUpload
-          uploadHandler={handler}
+          progress={progress}
+          uploadHandler={uploadHandler}
         />
       </div>
     </>
