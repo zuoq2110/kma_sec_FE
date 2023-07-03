@@ -14,6 +14,8 @@ export default function WindowAnalyzeDetail() {
   const path = useLocation();
   const toast = useRef(null);
 
+  const { dataPE, fileName } = dataWindowAnalysis;
+
   function save(analysisDetails) {
     try {
       const json = JSON.stringify(analysisDetails);
@@ -73,7 +75,7 @@ export default function WindowAnalyzeDetail() {
   });
 
   useEffect(() => {
-    const _summary = Object.keys(dataWindowAnalysis)
+    const _summary = Object.keys(dataPE)
       .slice(0, -1)
       .filter((key) => {
         return key !== "MD5" && !key.includes("SHA");
@@ -81,12 +83,12 @@ export default function WindowAnalyzeDetail() {
       .map((key) => {
         return {
           name: key,
-          value: dataWindowAnalysis[key],
+          value: dataPE[key],
         };
       });
 
     setSumnary(_summary);
-  }, [dataWindowAnalysis]);
+  }, [dataPE]);
 
   return (
     <>
@@ -102,19 +104,21 @@ export default function WindowAnalyzeDetail() {
         />
       </div>
 
-      {dataWindowAnalysis && (
+      {dataPE && (
         <>
           <div className="flex flex-wrap justify-content-between align-items-center mb-4">
-            <h5 className="mb-0">ID: #{pathNames.at(-1)}</h5>
-            <Button label="Save" onClick={() => save(dataWindowAnalysis)} />
+            <p className="mb-0" style={{ fontSize: "1.5rem" }}>
+              File Name: {fileName}
+            </p>
+            <Button label="Save" onClick={() => save(dataPE)} />
           </div>
 
           <div className="card px-6 mb-5">
             <div className="flex flex-wrap justify-content-between align-items-center mx-3 mt-2 mb-5">
               <p className="my-0" style={{ fontSize: "1.25rem" }}>
-                MD5: {dataWindowAnalysis.MD5}
+                MD5: {dataPE.MD5}
               </p>
-              <h4 className="my-0">{dataWindowAnalysis.malware_type}</h4>
+              <h4 className="my-0">{dataPE.malware_type}</h4>
             </div>
 
             <Divider />

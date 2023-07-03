@@ -233,21 +233,23 @@ export default function AnalyzePage() {
 
     setTimeout(() => {
       let id = response.data.analysis_id;
-      let dataAnalyzes = storeDataAnalyze ? [...storeDataAnalyze] : [];
-
-      const existingItemIndex = dataAnalyzes.findIndex(
-        (item) => item.id === id
-      );
-      if (existingItemIndex !== -1) {
-        dataAnalyzes = [...dataAnalyzes];
-      } else {
-        dataAnalyzes = [...dataAnalyzes, { id: id, fileName: fileName }];
-      }
-
-      localStorage.setItem("dataAnalyze", JSON.stringify(dataAnalyzes));
+      let dataPE = response.data;
       if (type === "windows") {
         id = uuidv4().replace(/-/g, "");
-        setDataWindowAnalysis(response.data);
+        setDataWindowAnalysis({ dataPE, fileName });
+      } else {
+        let dataAnalyzes = storeDataAnalyze ? [...storeDataAnalyze] : [];
+
+        const existingItemIndex = dataAnalyzes.findIndex(
+          (item) => item.id === id
+        );
+        if (existingItemIndex !== -1) {
+          dataAnalyzes = [...dataAnalyzes];
+        } else {
+          dataAnalyzes = [...dataAnalyzes, { id: id, fileName: fileName }];
+        }
+
+        localStorage.setItem("dataAnalyze", JSON.stringify(dataAnalyzes));
       }
       navigate(`/analyze/${type}/${id}`);
     }, 1500);
