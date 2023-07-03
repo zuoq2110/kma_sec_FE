@@ -108,6 +108,8 @@ export default function AndroidAnalyzeDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  console.log(fileNameAPK);
+
   return (
     <>
       <Toast ref={toast}></Toast>

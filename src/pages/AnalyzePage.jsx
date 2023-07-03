@@ -234,22 +234,21 @@ export default function AnalyzePage() {
     setTimeout(() => {
       let id = response.data.analysis_id;
       let dataPE = response.data;
+      let dataAnalyzes = storeDataAnalyze ? [...storeDataAnalyze] : [];
+
+      const existingItemIndex = dataAnalyzes.findIndex(
+        (item) => item.id === id
+      );
+      if (existingItemIndex !== -1) {
+        dataAnalyzes = [...dataAnalyzes];
+      } else {
+        dataAnalyzes = [...dataAnalyzes, { id: id, fileName: fileName }];
+      }
+      localStorage.setItem("dataAnalyze", JSON.stringify(dataAnalyzes));
+
       if (type === "windows") {
         id = uuidv4().replace(/-/g, "");
         setDataWindowAnalysis({ dataPE, fileName });
-      } else {
-        let dataAnalyzes = storeDataAnalyze ? [...storeDataAnalyze] : [];
-
-        const existingItemIndex = dataAnalyzes.findIndex(
-          (item) => item.id === id
-        );
-        if (existingItemIndex !== -1) {
-          dataAnalyzes = [...dataAnalyzes];
-        } else {
-          dataAnalyzes = [...dataAnalyzes, { id: id, fileName: fileName }];
-        }
-
-        localStorage.setItem("dataAnalyze", JSON.stringify(dataAnalyzes));
       }
       navigate(`/analyze/${type}/${id}`);
     }, 1500);
