@@ -156,7 +156,7 @@ export default function StatisticsPage() {
           paginator
           filters={filters}
           removableSort
-          rows={20}
+          rows={10}
           rowsPerPageOptions={[10, 20, 50, 100]}
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"

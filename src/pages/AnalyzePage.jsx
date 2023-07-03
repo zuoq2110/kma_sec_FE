@@ -11,6 +11,7 @@ import { Tag } from "primereact/tag";
 import { v4 as uuidv4 } from "uuid";
 import { DataContext } from "../context/dataContext";
 import { analyze } from "../services/kSecurityService";
+import { storeDataAnalyze } from "../services/kSecurityService";
 
 const CONTENT_TYPE_APK = "application/vnd.android.package-archive";
 
@@ -207,6 +208,7 @@ export default function AnalyzePage() {
   const uploadHandler = async (event) => {
     const file = event.files[0];
     const type = file.type === CONTENT_TYPE_APK ? "android" : "windows";
+    const fileName = file.name;
     let response;
 
     setProgessState(100);
@@ -228,12 +230,25 @@ export default function AnalyzePage() {
       summary: "Success",
       detail: "File uploaded!",
     });
+
     setTimeout(() => {
       let id = response.data.analysis_id;
+      let dataPE = response.data;
+      let dataAnalyzes = storeDataAnalyze ? [...storeDataAnalyze] : [];
+
+      const existingItemIndex = dataAnalyzes.findIndex(
+        (item) => item.id === id
+      );
+      if (existingItemIndex !== -1) {
+        dataAnalyzes = [...dataAnalyzes];
+      } else {
+        dataAnalyzes = [...dataAnalyzes, { id: id, fileName: fileName }];
+      }
+      localStorage.setItem("dataAnalyze", JSON.stringify(dataAnalyzes));
 
       if (type === "windows") {
         id = uuidv4().replace(/-/g, "");
-        setDataWindowAnalysis(response.data);
+        setDataWindowAnalysis({ dataPE, fileName });
       }
       navigate(`/analyze/${type}/${id}`);
     }, 1500);

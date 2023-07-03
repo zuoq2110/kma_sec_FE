@@ -5,6 +5,7 @@ import { Divider } from "primereact/divider";
 import { BreadCrumb } from "primereact/breadcrumb";
 import { Button } from "primereact/button";
 import { Accordion, AccordionTab } from "primereact/accordion";
+import { storeDataAnalyze } from "../services/kSecurityService";
 
 const KSECURITY_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
 
@@ -12,6 +13,7 @@ export default function AndroidAnalyzeDetail() {
   const [analysisDetails, setAnalysisDetails] = useState();
   const path = useLocation();
   const toast = useRef(null);
+  const [fileNameAPK, setFileNameAPK] = useState(null);
 
   function getAnalysisDetails(id) {
     const url = `${KSECURITY_URL}/api/v1/android/applications/${id}`;
@@ -96,7 +98,17 @@ export default function AndroidAnalyzeDetail() {
     getAnalysisDetails(analysisId).then((response) =>
       setAnalysisDetails(response.data)
     );
-  }, [pathNames]);
+    let dataAnalyzes = storeDataAnalyze ? [...storeDataAnalyze] : [];
+    dataAnalyzes.map((item) => {
+      if (item.id === analysisId) {
+        setFileNameAPK(item.fileName);
+      }
+      return null;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  console.log(fileNameAPK);
 
   return (
     <>
@@ -115,7 +127,9 @@ export default function AndroidAnalyzeDetail() {
       {analysisDetails && (
         <>
           <div className="flex flex-wrap justify-content-between align-items-center mb-4">
-            <h5 className="mb-0">ID: #{analysisDetails.id}</h5>
+            <p className="mb-0" style={{ fontSize: "1.5rem" }}>
+              File Name: {fileNameAPK}
+            </p>
             <Button label="Save" onClick={() => save(analysisDetails.id)} />
           </div>
 

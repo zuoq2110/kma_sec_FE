@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { BreadCrumb } from "primereact/breadcrumb";
 import { Divider } from "primereact/divider";
 import { InputText } from "primereact/inputtext";
-import { Dropdown } from "primereact/dropdown";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Button } from "primereact/button";
@@ -20,6 +19,8 @@ export default function ModelsPage() {
   const [globalFilter, setGlobalFilter] = useState("");
   const [filters, setFilters] = useState(null);
   const toast = useRef(null);
+  const path = useLocation();
+  const type = path.pathname.replace("/models/", "").trim();
 
   const iconItemTemplate = (item, options) => {
     return (
@@ -38,7 +39,7 @@ export default function ModelsPage() {
   };
 
   const home = { icon: "pi pi-home", url: "/", template: iconItemTemplate };
-  const items = [{ label: "Models" }];
+  const items = [{ label: "Models" }, { label: `${type}` }];
 
   const onGlobalFilterChange = (event) => {
     const value = event.target.value;
@@ -72,30 +73,7 @@ export default function ModelsPage() {
       </Link>
     );
   };
-  const inputFormatFilterElement = (options) => {
-    const typeItemTemplate = (option) => {
-      return (
-        <span className={`customer-badge input-format-${option}`}>
-          {option}
-        </span>
-      );
-    };
 
-    const inputFormats = models?.map((model) => model["input_format"]) ?? [];
-
-    return (
-      <Dropdown
-        value={options.value}
-        options={[...new Set(inputFormats)]}
-        onChange={(e) => options.filterCallback(e.value, options.index)}
-        itemTemplate={typeItemTemplate}
-        placeholder="Select a Type"
-        className="p-column-filter"
-        showClear
-        filterMatchMode="equals"
-      />
-    );
-  };
   const createdDateBody = (rawData) => {
     const data = moment(rawData.created_at).format("YYYY-MM-DD HH:mm:ss");
     const date = moment.utc(data).toDate();
@@ -156,8 +134,8 @@ export default function ModelsPage() {
     };
 
     setFilters(_filters);
-    getModels().then((response) => setModels(response.data));
-  }, []);
+    getModels(type).then((response) => setModels(response.data));
+  }, [type]);
 
   return (
     <>
@@ -181,7 +159,7 @@ export default function ModelsPage() {
           dataKey="id"
           paginator
           removableSort
-          rows={20}
+          rows={10}
           rowsPerPageOptions={[10, 20, 50, 100]}
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
@@ -202,8 +180,6 @@ export default function ModelsPage() {
           <Column
             field="input_format"
             header="Input Format"
-            filter
-            filterElement={inputFormatFilterElement}
             style={{ minWidth: "10rem" }}
             showAddButton={false}
           ></Column>
