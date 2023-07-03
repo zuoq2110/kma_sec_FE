@@ -1,5 +1,7 @@
 const BASE_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
 
+export const storeDataAnalyze = JSON.parse(localStorage.getItem("dataAnalyze"));
+
 export async function analyze(file, type) {
   const formData = new FormData();
   const url = new URL(`${BASE_URL}/api/v1/${type}/applications`);
