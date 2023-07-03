@@ -92,7 +92,7 @@ export default function ModelDetailsPage() {
 
       setDatasetDistribute(_datasetDistribute);
     });
-  }, []);
+  }, [path.pathname]);
 
   return (
     <>

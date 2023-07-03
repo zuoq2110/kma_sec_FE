@@ -96,7 +96,7 @@ export default function AndroidAnalyzeDetail() {
     getAnalysisDetails(analysisId).then((response) =>
       setAnalysisDetails(response.data)
     );
-  }, []);
+  }, [pathNames]);
 
   return (
     <>

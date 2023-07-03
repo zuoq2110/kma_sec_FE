@@ -86,7 +86,7 @@ export default function WindowAnalyzeDetail() {
       });
 
     setSumnary(_summary);
-  }, []);
+  }, [dataWindowAnalysis]);
 
   return (
     <>

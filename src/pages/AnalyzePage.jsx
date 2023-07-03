@@ -48,7 +48,7 @@ function AnalyzeFileUpload({ maxFileSize, progress, uploadHandler }) {
   const fileUpload = useRef(null);
 
   const headerTemplate = (options) => {
-    const { className, chooseButton, uploadButton, cancelButton } = options;
+    const { className, chooseButton } = options;
     const size = currentSize / 1000000;
     const fileSize =
       fileUpload && fileUpload.current
@@ -65,8 +65,6 @@ function AnalyzeFileUpload({ maxFileSize, progress, uploadHandler }) {
         }}
       >
         {chooseButton}
-        {uploadButton}
-        {cancelButton}
         <div className="flex align-items-center gap-3 ml-auto">
           <span>{fileSize} / 100 MB</span>
           <ProgressBar
@@ -168,18 +166,6 @@ function AnalyzeFileUpload({ maxFileSize, progress, uploadHandler }) {
     iconOnly: true,
     className: "custom-choose-btn p-button-rounded p-button-outlined",
   };
-  const uploadOptions = {
-    icon: "pi pi-fw pi-cloud-upload",
-    iconOnly: true,
-    className:
-      "custom-upload-btn p-button-success p-button-rounded p-button-outlined",
-  };
-  const cancelOptions = {
-    icon: "pi pi-fw pi-times",
-    iconOnly: true,
-    className:
-      "custom-cancel-btn p-button-danger p-button-rounded p-button-outlined",
-  };
 
   const onSelect = (e) => {
     let files = e.files;
@@ -205,8 +191,7 @@ function AnalyzeFileUpload({ maxFileSize, progress, uploadHandler }) {
       itemTemplate={itemTemplate}
       emptyTemplate={emptyTemplate}
       chooseOptions={chooseOptions}
-      uploadOptions={uploadOptions}
-      cancelOptions={cancelOptions}
+      auto={true}
       customUpload={true}
       uploadHandler={uploadHandler}
     />
