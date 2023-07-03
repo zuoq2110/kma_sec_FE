@@ -49,7 +49,15 @@ export const privateRoutes = [
     ),
   },
   {
-    path: "/models",
+    path: "/models/PE",
+    element: (
+      <DefaultLayout>
+        <ModelsPage />
+      </DefaultLayout>
+    ),
+  },
+  {
+    path: "/models/APK",
     element: (
       <DefaultLayout>
         <ModelsPage />
