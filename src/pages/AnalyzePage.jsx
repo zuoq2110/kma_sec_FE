@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Toast } from "primereact/toast";
 import { BreadCrumb } from "primereact/breadcrumb";
@@ -11,7 +11,7 @@ import { Tag } from "primereact/tag";
 import { v4 as uuidv4 } from "uuid";
 import { DataContext } from "../context/dataContext";
 import { analyze } from "../services/kSecurityService";
-import { storeDataAnalyze } from "../services/kSecurityService";
+import { getDataAnalyzePage } from "../services/kSecurityService";
 
 const CONTENT_TYPE_APK = "application/vnd.android.package-archive";
 
@@ -204,6 +204,12 @@ export default function AnalyzePage() {
   const { setDataWindowAnalysis } = useContext(DataContext);
   const [progress, setProgessState] = useState(0);
   const toast = useRef(null);
+  const [storeDataAnalyze, setStoreDataAnalyze] = useState(null);
+
+  useEffect(() => {
+    let _dataAnalyze = getDataAnalyzePage();
+    setStoreDataAnalyze(_dataAnalyze);
+  }, []);
 
   const uploadHandler = async (event) => {
     const file = event.files[0];
@@ -231,20 +237,21 @@ export default function AnalyzePage() {
       detail: "File uploaded!",
     });
 
-    setTimeout(() => {
+    setTimeout(async () => {
       let id = response.data.analysis_id;
       let dataPE = response.data;
-      let dataAnalyzes = storeDataAnalyze ? [...storeDataAnalyze] : [];
+      let dataAnalyzes = storeDataAnalyze ? storeDataAnalyze : [];
 
       const existingItemIndex = dataAnalyzes.findIndex(
-        (item) => item.id === id
+        (item) => item.fileName === fileName
       );
+
       if (existingItemIndex !== -1) {
         dataAnalyzes = [...dataAnalyzes];
       } else {
         dataAnalyzes = [...dataAnalyzes, { id: id, fileName: fileName }];
       }
-      localStorage.setItem("dataAnalyze", JSON.stringify(dataAnalyzes));
+      await localStorage.setItem("dataAnalyze", JSON.stringify(dataAnalyzes));
 
       if (type === "windows") {
         id = uuidv4().replace(/-/g, "");

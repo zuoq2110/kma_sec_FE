@@ -5,7 +5,7 @@ import { Divider } from "primereact/divider";
 import { BreadCrumb } from "primereact/breadcrumb";
 import { Button } from "primereact/button";
 import { Accordion, AccordionTab } from "primereact/accordion";
-import { storeDataAnalyze } from "../services/kSecurityService";
+import { getDataAnalyzePage } from "../services/kSecurityService";
 
 const KSECURITY_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
 
@@ -98,17 +98,20 @@ export default function AndroidAnalyzeDetail() {
     getAnalysisDetails(analysisId).then((response) =>
       setAnalysisDetails(response.data)
     );
-    let dataAnalyzes = storeDataAnalyze ? [...storeDataAnalyze] : [];
-    dataAnalyzes.map((item) => {
-      if (item.id === analysisId) {
-        setFileNameAPK(item.fileName);
-      }
-      return null;
-    });
+    let _dataAnalyze = getDataAnalyzePage();
+    let dataAnalyzes = _dataAnalyze ? _dataAnalyze : [];
+
+    if (dataAnalyzes) {
+      dataAnalyzes.map((item) => {
+        if (item.id === analysisId) {
+          setFileNameAPK(item.fileName);
+        }
+        return null;
+      });
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  console.log(fileNameAPK);
 
   return (
     <>
