@@ -239,7 +239,7 @@ export default function AnalyzePage() {
 
     setTimeout(async () => {
       let id = response.data.analysis_id;
-      let dataPE = response.data;
+      let _dataPE = response.data;
       let dataAnalyzes = storeDataAnalyze ? storeDataAnalyze : [];
 
       const existingItemIndex = dataAnalyzes.findIndex(
@@ -255,7 +255,7 @@ export default function AnalyzePage() {
 
       if (type === "windows") {
         id = uuidv4().replace(/-/g, "");
-        setDataWindowAnalysis({ dataPE, fileName });
+        setDataWindowAnalysis({ _dataPE, fileName });
       }
       navigate(`/analyze/${type}/${id}`);
     }, 1500);
