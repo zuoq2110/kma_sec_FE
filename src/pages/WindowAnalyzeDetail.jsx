@@ -4,17 +4,33 @@ import { Toast } from "primereact/toast";
 import { Divider } from "primereact/divider";
 import { BreadCrumb } from "primereact/breadcrumb";
 import { Button } from "primereact/button";
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
 import { DataContext } from "../context/dataContext";
+import { Accordion, AccordionTab } from "primereact/accordion";
 
 export default function WindowAnalyzeDetail() {
   const { dataWindowAnalysis } = useContext(DataContext);
-  const [summary, setSumnary] = useState(null);
   const path = useLocation();
   const toast = useRef(null);
+  const [filename, setFilename] = useState(null);
+  const [dataPE, setDataPe] = useState(null);
 
-  const { dataPE, fileName } = dataWindowAnalysis;
+  // data response
+  const [dataFieldHeader, setDataFieldHeader] = useState(null);
+  const [dataLibraries, setDataLibraries] = useState(null);
+  const [dataSections, setDataSections] = useState(null);
+
+  useEffect(() => {
+    const { _dataPE, fileName } = dataWindowAnalysis;
+    setFilename(fileName);
+    setDataPe(_dataPE);
+    setDataFieldHeader({
+      dos_header: _dataPE.dos_header,
+      header: _dataPE.header,
+      optional_header: _dataPE.optional_header,
+    });
+    setDataLibraries(_dataPE.libraries);
+    setDataSections(_dataPE.sections);
+  }, [dataWindowAnalysis]);
 
   function save(analysisDetails) {
     try {
@@ -74,21 +90,22 @@ export default function WindowAnalyzeDetail() {
     }
   });
 
-  useEffect(() => {
-    const _summary = Object.keys(dataPE)
-      .slice(0, -1)
-      .filter((key) => {
-        return key !== "MD5" && !key.includes("SHA");
-      })
-      .map((key) => {
-        return {
-          name: key,
-          value: dataPE[key],
-        };
-      });
-
-    setSumnary(_summary);
-  }, [dataPE]);
+  const itemTemplate = ([key, value]) => {
+    return (
+      <div className="col-12">
+        <div className="flex flex-column xl:flex-row xl:align-items-start p-1 gap-4">
+          <div className="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-1 gap-4">
+            <div className="flex flex-column align-items-center sm:align-items-start gap-3">
+              <div className="text-900">{key} :</div>
+            </div>
+            <div className="flex sm:flex-column align-items-center sm:align-items-end gap-3 sm:gap-2">
+              <span className="font-semibold">{String(value)}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <>
@@ -108,27 +125,83 @@ export default function WindowAnalyzeDetail() {
         <>
           <div className="flex flex-wrap justify-content-between align-items-center mb-4">
             <p className="mb-0" style={{ fontSize: "1.5rem" }}>
-              File Name: {fileName}
+              File Name: {filename}
             </p>
             <Button label="Save" onClick={() => save(dataPE)} />
           </div>
 
           <div className="card px-6 mb-5">
             <div className="flex flex-wrap justify-content-between align-items-center mx-3 mt-2 mb-5">
-              <p className="my-0" style={{ fontSize: "1.25rem" }}>
-                MD5: {dataPE.MD5}
-              </p>
+              <p className="my-0" style={{ fontSize: "1.25rem" }}></p>
               <h4 className="my-0">{dataPE.malware_type}</h4>
             </div>
 
             <Divider />
 
             <h5 className="mx-3 mb-4">Summary</h5>
+            {/* Data field header */}
+            <Accordion multiple>
+              {Object.keys(dataFieldHeader).map((section) => {
+                return (
+                  <AccordionTab
+                    key={section}
+                    header={section
+                      .split("_")
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
+                      )
+                      .join(" ")}
+                  >
+                    {Object.entries(dataPE[section]).map(([key, value]) => (
+                      <div className="m-0" key={key}>
+                        {itemTemplate([key, value])}
+                      </div>
+                    ))}
+                  </AccordionTab>
+                );
+              })}
 
-            <DataTable value={summary} stripedRows>
-              <Column field="name" header="Feature" align={"center"}></Column>
-              <Column field="value" header="Value" align={"center"}></Column>
-            </DataTable>
+              {/* Libraries */}
+              {
+                <AccordionTab header="Libraries">
+                  {dataLibraries.map((item, index) => (
+                    <Accordion key={index} multiple>
+                      <AccordionTab header={item.name}>
+                        {Object.entries(item).map(([key, value]) => {
+                          if (key === "entries") {
+                            return null;
+                          } else {
+                            return (
+                              <div className="m-0" key={key}>
+                                {itemTemplate([key, value])}
+                              </div>
+                            );
+                          }
+                        })}
+                      </AccordionTab>
+                    </Accordion>
+                  ))}
+                </AccordionTab>
+              }
+              {/* Section */}
+              {
+                <AccordionTab header="Section">
+                  {dataSections.map((item, index) => (
+                    <Accordion key={index} multiple>
+                      <AccordionTab header={item.name}>
+                        {Object.entries(item).map(([key, value]) => {
+                          return (
+                            <div className="m-0" key={key}>
+                              {itemTemplate([key, value])}
+                            </div>
+                          );
+                        })}
+                      </AccordionTab>
+                    </Accordion>
+                  ))}
+                </AccordionTab>
+              }
+            </Accordion>
           </div>
         </>
       )}
