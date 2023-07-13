@@ -6,6 +6,7 @@ import LoginPage from "../pages/Login.jsx";
 import StatisticsPage from "../pages/StatisticsPage.jsx";
 import AnalyzePage from "../pages/AnalyzePage.jsx";
 import AndroidAnalyzeDetail from "../pages/AndroidAnalyzeDetail.jsx";
+import NotFoundPage from "../pages/NotFoundPage.jsx";
 
 export const privateRoutes = [
   {
@@ -83,5 +84,9 @@ export const privateRoutes = [
         <StatisticsPage />
       </DefaultLayout>
     ),
+  },
+  {
+    path: "*",
+    element: <NotFoundPage />,
   },
 ];
