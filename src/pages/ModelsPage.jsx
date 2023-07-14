@@ -201,13 +201,22 @@ export default function ModelsPage() {
         dataModelEdited.id,
         dataModelEdited.state
       );
-      toast.current.show({
-        severity: "success",
-        summary: "Success",
-        detail: response.message,
-        life: 2000,
-      });
-      await onloadModels();
+      if (response.status === 200) {
+        toast.current.show({
+          severity: "success",
+          summary: "Success",
+          detail: response.data.message,
+          life: 2000,
+        });
+        await onloadModels();
+      } else {
+        toast.current.show({
+          severity: "error",
+          summary: "Failure",
+          detail: response.data.message,
+          life: 2000,
+        });
+      }
       setEditModelDialog(false);
     } catch (error) {
       toast.current.show({
