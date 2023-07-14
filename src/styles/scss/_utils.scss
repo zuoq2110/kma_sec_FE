@@ -1,4 +1,5 @@
 /* Utils */
+
 .clearfix:after {
   content: " ";
   display: block;
@@ -12,7 +13,6 @@
   margin-bottom: 2rem;
   box-shadow: var(--card-shadow);
   border-radius: $borderRadius;
-
   &:last-child {
     margin-bottom: 0;
   }
@@ -50,4 +50,20 @@
 .customer-badge.input-format-PE {
   background: #b3e5fc;
   color: #23547b;
+}
+
+// state models
+.customer-badge.status-Training {
+  background: #b3e5fc;
+  color: #23547b;
+}
+
+.customer-badge.status-Deactivate {
+  background: #ffd8b2;
+  color: #805b36;
+}
+
+.customer-badge.status-Activate {
+  background: #c8e6c9;
+  color: #256029;
 }

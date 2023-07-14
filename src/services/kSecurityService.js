@@ -14,6 +14,20 @@ export async function analyze(file, type) {
   return await response.json();
 }
 
+export async function updateModelState(idModel, newState) {
+  const url = new URL(`${BASE_URL}/api/v1/models/${idModel}`);
+  let response;
+
+  response = await fetch(url, {
+    method: "PATCH",
+    body: JSON.stringify({
+      state: `${newState}`,
+    }),
+  });
+
+  return await response.json();
+}
+
 export async function getModels(type, page = 1, limit = 20) {
   const params = { input_format: type, page: page, limit: limit };
   const url = new URL(`${BASE_URL}/api/v1/models`);

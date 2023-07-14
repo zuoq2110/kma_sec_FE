@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { BreadCrumb } from "primereact/breadcrumb";
 import { Divider } from "primereact/divider";
@@ -7,17 +7,27 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
+import { Dropdown } from "primereact/dropdown";
+import { Dialog } from "primereact/dialog";
 import { FilterMatchMode, FilterOperator } from "primereact/api";
 import moment from "moment";
-import { getModels, getModelSource } from "../services/kSecurityService";
+import {
+  getModels,
+  getModelSource,
+  updateModelState,
+} from "../services/kSecurityService";
 
 const MODEL_TYPE_HDF5 = "HDF5/H5";
 const MODEL_TYPE_PICKLE = "PICKLE";
+
+const stateEdit = ["Deactivate", "Activate"];
 
 export default function ModelsPage() {
   const [models, setModels] = useState(null);
   const [globalFilter, setGlobalFilter] = useState("");
   const [filters, setFilters] = useState(null);
+  const [editModelDialog, setEditModelDialog] = useState(false);
+  const [dataModelEdited, setDataModelEdited] = useState(null);
   const toast = useRef(null);
   const path = useLocation();
   const type = path.pathname.replace("/models/", "").trim();
@@ -40,6 +50,13 @@ export default function ModelsPage() {
 
   const home = { icon: "pi pi-home", url: "/", template: iconItemTemplate };
   const items = [{ label: "Models" }, { label: `${type}` }];
+
+  function formatDate(raw, format) {
+    const data = moment(raw).format("YYYY-MM-DD HH:mm:ss");
+    const date = moment.utc(data).toDate();
+
+    return moment(date).local().format(format);
+  }
 
   const onGlobalFilterChange = (event) => {
     const value = event.target.value;
@@ -71,6 +88,35 @@ export default function ModelsPage() {
       >
         {rawData.version}
       </Link>
+    );
+  };
+
+  const stateBody = (rawData) => {
+    return (
+      <span className={`customer-badge status-${rawData.state}`}>
+        {rawData.state}
+      </span>
+    );
+  };
+
+  const stateTypes = models?.map((element) => element["state"]) ?? [];
+
+  const stateItemTemplate = (option) => {
+    return <span className={`customer-badge status-${option}`}>{option}</span>;
+  };
+
+  const stateFilterTemplate = (options) => {
+    return (
+      <Dropdown
+        value={options.value}
+        options={[...new Set(stateTypes)]}
+        onChange={(e) => options.filterCallback(e.value, options.index)}
+        itemTemplate={stateItemTemplate}
+        placeholder="Select a Type"
+        className="p-column-filter"
+        showClear
+        filterMatchMode="equals"
+      />
     );
   };
 
@@ -112,21 +158,99 @@ export default function ModelsPage() {
     });
   };
 
+  const editModels = (model) => {
+    setDataModelEdited({ ...model });
+    setEditModelDialog(true);
+  };
+
   const actionBody = (rawData) => {
     return (
-      <Button
-        icon="pi pi-download"
-        rounded
-        outlined
-        className="mr-2"
-        onClick={() => download(rawData.id, rawData.type)}
-      />
+      <>
+        <Button
+          icon="pi pi-pencil"
+          rounded
+          outlined
+          severity="warning"
+          className="mr-2"
+          onClick={() => editModels(rawData)}
+        />
+        <Button
+          icon="pi pi-download"
+          rounded
+          outlined
+          className="mr-2"
+          onClick={() => download(rawData.id, rawData.type)}
+        />
+      </>
     );
+  };
+  // dialog models
+
+  const hideDialog = () => {
+    setEditModelDialog(false);
+  };
+
+  const onloadModels = useCallback(async () => {
+    await getModels(type).then((response) => setModels(response.data));
+  }, [type]);
+
+  const saveEditModel = async () => {
+    let response;
+    try {
+      response = await updateModelState(
+        dataModelEdited.id,
+        dataModelEdited.state
+      );
+      toast.current.show({
+        severity: "success",
+        summary: "Success",
+        detail: response.message,
+        life: 2000,
+      });
+      await onloadModels();
+      setEditModelDialog(false);
+    } catch (error) {
+      toast.current.show({
+        severity: "error",
+        summary: "Failure",
+        detail: error,
+      });
+      return;
+    }
+  };
+
+  const editModelDialogFooter = (
+    <React.Fragment>
+      <Button
+        label="Cancel"
+        severity="danger"
+        icon="pi pi-times"
+        outlined
+        onClick={hideDialog}
+      />
+      <Button
+        label="Save"
+        severity="success"
+        icon="pi pi-check"
+        outlined
+        onClick={saveEditModel}
+      />
+    </React.Fragment>
+  );
+  const onDropdownStateChange = (e) => {
+    const val = (e.target && e.target.value) || "";
+    let _dataModel = { ...dataModelEdited };
+
+    setDataModelEdited({ ..._dataModel, state: val });
   };
 
   useEffect(() => {
     const _filters = {
       global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+      state: {
+        operator: FilterOperator.OR,
+        constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }],
+      },
       input_format: {
         operator: FilterOperator.OR,
         constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }],
@@ -173,14 +297,18 @@ export default function ModelsPage() {
             style={{ minWidth: "12rem" }}
           ></Column>
           <Column
-            field="type"
-            header="Type"
-            style={{ minWidth: "10rem" }}
-          ></Column>
-          <Column
             field="input_format"
             header="Input Format"
             style={{ minWidth: "10rem" }}
+            showAddButton={false}
+          ></Column>
+          <Column
+            field="state"
+            header="State"
+            style={{ minWidth: "10rem" }}
+            body={stateBody}
+            filter
+            filterElement={stateFilterTemplate}
             showAddButton={false}
           ></Column>
           <Column
@@ -197,6 +325,61 @@ export default function ModelsPage() {
           ></Column>
         </DataTable>
       </div>
+
+      {dataModelEdited && (
+        <Dialog
+          visible={editModelDialog}
+          style={{ width: "32rem" }}
+          breakpoints={{ "960px": "75vw", "641px": "90vw" }}
+          header="Model Details"
+          modal
+          className="p-fluid"
+          footer={editModelDialogFooter}
+          onHide={hideDialog}
+        >
+          <div className="field">
+            <div className="col-12 md:col-6 w-full">
+              <div className="grid">
+                <div className="col-12 md:col-6">
+                  <p className="my-1 ">Version</p>
+                  <p className="text-xl font-semibold ">
+                    {dataModelEdited.version}
+                  </p>
+                </div>
+                <div className="col-12 md:col-6">
+                  <p className="my-1 ">Input Format</p>
+                  <p className="text-xl font-semibold ">
+                    {dataModelEdited.input_format}
+                  </p>
+                </div>
+                <div className="col-12 md:col-6">
+                  <p className="my-1 ">Type</p>
+                  <p className="text-xl font-semibold ">
+                    {dataModelEdited.type}
+                  </p>
+                </div>
+                <div className="col-12 md:col-6">
+                  <p className="my-1 ">Created Date</p>
+                  <p className="text-xl font-semibold ">
+                    {formatDate(dataModelEdited.created_at, "DD/MM/YYYY")}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="field">
+            <label className="font-bold">State</label>
+            <Dropdown
+              value={dataModelEdited.state}
+              options={stateEdit}
+              onChange={(e) => onDropdownStateChange(e)}
+              itemTemplate={stateItemTemplate}
+              placeholder="Select a Type"
+              className="p-column-filter"
+            />
+          </div>
+        </Dialog>
+      )}
     </>
   );
 }
