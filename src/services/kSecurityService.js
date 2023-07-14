@@ -25,7 +25,8 @@ export async function updateModelState(idModel, newState) {
     }),
   });
 
-  return await response.json();
+  const data = await response.json();
+  return { status: response.status, data: data };
 }
 
 export async function getModels(type, page = 1, limit = 20) {

@@ -191,7 +191,7 @@ export default function ModelDetailsPage() {
                   </p>
                 </div>
                 <div className="col-12 md:col-6">
-                  <p className="my-1">Type</p>
+                  <p className="my-1">State</p>
                   <p className="text-xl font-semibold">{modelDetails.state}</p>
                 </div>
                 <div className="col-12 md:col-6">
