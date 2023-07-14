@@ -7,12 +7,15 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
+import { Dropdown } from "primereact/dropdown";
 import { FilterMatchMode, FilterOperator } from "primereact/api";
 import moment from "moment";
 import { getModels, getModelSource } from "../services/kSecurityService";
 
 const MODEL_TYPE_HDF5 = "HDF5/H5";
 const MODEL_TYPE_PICKLE = "PICKLE";
+
+const stateuses = ["Training", "Deactivate", "Activate"];
 
 export default function ModelsPage() {
   const [models, setModels] = useState(null);
@@ -74,6 +77,35 @@ export default function ModelsPage() {
     );
   };
 
+  const stateBody = (rawData) => {
+    return (
+      <span className={`customer-badge status-${rawData.state}`}>
+        {rawData.state}
+      </span>
+    );
+  };
+
+  const stateFilterTemplate = (options) => {
+    const stateItemTemplate = (option) => {
+      return (
+        <span className={`customer-badge status-${option}`}>{option}</span>
+      );
+    };
+
+    return (
+      <Dropdown
+        value={options.value}
+        options={stateuses}
+        onChange={(e) => options.filterCallback(e.value, options.index)}
+        itemTemplate={stateItemTemplate}
+        placeholder="Select a Type"
+        className="p-column-filter"
+        showClear
+        filterMatchMode="equals"
+      />
+    );
+  };
+
   const createdDateBody = (rawData) => {
     const data = moment(rawData.created_at).format("YYYY-MM-DD HH:mm:ss");
     const date = moment.utc(data).toDate();
@@ -127,6 +159,10 @@ export default function ModelsPage() {
   useEffect(() => {
     const _filters = {
       global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+      state: {
+        operator: FilterOperator.OR,
+        constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }],
+      },
       input_format: {
         operator: FilterOperator.OR,
         constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }],
@@ -173,14 +209,18 @@ export default function ModelsPage() {
             style={{ minWidth: "12rem" }}
           ></Column>
           <Column
-            field="type"
-            header="Type"
-            style={{ minWidth: "10rem" }}
-          ></Column>
-          <Column
             field="input_format"
             header="Input Format"
             style={{ minWidth: "10rem" }}
+            showAddButton={false}
+          ></Column>
+          <Column
+            field="state"
+            header="State"
+            style={{ minWidth: "10rem" }}
+            body={stateBody}
+            filter
+            filterElement={stateFilterTemplate}
             showAddButton={false}
           ></Column>
           <Column
