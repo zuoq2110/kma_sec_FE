@@ -20,7 +20,6 @@ import {
 const MODEL_TYPE_HDF5 = "HDF5/H5";
 const MODEL_TYPE_PICKLE = "PICKLE";
 
-const stateFilter = ["Training", "Deactivate", "Activate"];
 const stateEdit = ["Deactivate", "Activate"];
 
 export default function ModelsPage() {
@@ -100,6 +99,8 @@ export default function ModelsPage() {
     );
   };
 
+  const stateTypes = models?.map((element) => element["state"]) ?? [];
+
   const stateItemTemplate = (option) => {
     return <span className={`customer-badge status-${option}`}>{option}</span>;
   };
@@ -108,7 +109,7 @@ export default function ModelsPage() {
     return (
       <Dropdown
         value={options.value}
-        options={stateFilter}
+        options={[...new Set(stateTypes)]}
         onChange={(e) => options.filterCallback(e.value, options.index)}
         itemTemplate={stateItemTemplate}
         placeholder="Select a Type"
