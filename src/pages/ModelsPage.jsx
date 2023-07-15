@@ -166,14 +166,27 @@ export default function ModelsPage() {
   const actionBody = (rawData) => {
     return (
       <>
-        <Button
-          icon="pi pi-pencil"
-          rounded
-          outlined
-          severity="warning"
-          className="mr-2"
-          onClick={() => editModels(rawData)}
-        />
+        {rawData?.state === "Training" ? (
+          <Button
+            icon="pi pi-pencil"
+            rounded
+            outlined
+            disabled
+            severity="warning"
+            className="mr-2"
+            onClick={() => editModels(rawData)}
+          />
+        ) : (
+          <Button
+            icon="pi pi-pencil"
+            rounded
+            outlined
+            severity="warning"
+            className="mr-2"
+            onClick={() => editModels(rawData)}
+          />
+        )}
+
         <Button
           icon="pi pi-download"
           rounded
@@ -335,6 +348,7 @@ export default function ModelsPage() {
         </DataTable>
       </div>
 
+      {/* Dialog Edit Models */}
       {dataModelEdited && (
         <Dialog
           visible={editModelDialog}
