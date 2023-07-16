@@ -131,7 +131,7 @@ export default function AndroidAnalyzeDetail() {
         <>
           <div className="flex flex-wrap justify-content-between align-items-center mb-4">
             <p className="mb-0" style={{ fontSize: "1.5rem" }}>
-              File Name: {fileNameAPK}
+              {fileNameAPK ? `File Name: ${fileNameAPK}` : ""}
             </p>
             <Button label="Save" onClick={() => save(analysisDetails.id)} />
           </div>

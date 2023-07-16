@@ -7,6 +7,7 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Chart } from "primereact/chart";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
+import { ProgressSpinner } from "primereact/progressspinner";
 import Plot from "react-plotly.js";
 import "react-circular-progressbar/dist/styles.css";
 import moment from "moment";
@@ -79,18 +80,20 @@ export default function ModelDetailsPage() {
     getModelHistory(id).then((response) => setHistory(response.data));
     getModelDatasets(id).then((response) => {
       const datasets = response.data;
-      const _quantity = datasets
-        .map((dataset) => dataset.quantity)
-        .reduce((accumulator, quantity) => accumulator + quantity);
-      const _datasetDistribute = datasets.map((dataset) => {
-        return {
-          label: dataset.label,
-          quantity: dataset.quantity,
-          percentage: (dataset.quantity / _quantity) * 100,
-        };
-      });
+      if (datasets) {
+        const _quantity = datasets
+          .map((dataset) => dataset.quantity)
+          .reduce((accumulator, quantity) => accumulator + quantity);
+        const _datasetDistribute = datasets.map((dataset) => {
+          return {
+            label: dataset.label,
+            quantity: dataset.quantity,
+            percentage: (dataset.quantity / _quantity) * 100,
+          };
+        });
 
-      setDatasetDistribute(_datasetDistribute);
+        setDatasetDistribute(_datasetDistribute);
+      }
     });
   }, [path.pathname]);
 
@@ -110,7 +113,7 @@ export default function ModelDetailsPage() {
         />
       </div>
 
-      {modelDetails && (
+      {modelDetails && modelDetails.state !== "Training" ? (
         <div className="grid">
           <div className="col-12 md:col-6">
             <div className="card">
@@ -338,6 +341,20 @@ export default function ModelDetailsPage() {
               </div>
             </div>
           )}
+        </div>
+      ) : (
+        <div className="grid">
+          <div className="col-12">
+            <div
+              className="card flex justify-content-center"
+              style={{ height: "100vh", flexDirection: "column" }}
+            >
+              <h5 className="text-center">
+                Model is still training, wait a minutes
+              </h5>
+              <ProgressSpinner />
+            </div>
+          </div>
         </div>
       )}
     </>
