@@ -9,13 +9,22 @@ import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
 import { Dropdown } from "primereact/dropdown";
 import { Dialog } from "primereact/dialog";
+import { Toolbar } from "primereact/toolbar";
+import { InputNumber } from "primereact/inputnumber";
 import { FilterMatchMode, FilterOperator } from "primereact/api";
 import moment from "moment";
 import {
+  createModels,
+  getModelDetails,
   getModels,
   getModelSource,
+  isValidFilename,
   updateModelState,
+  validateVersionName,
 } from "../services/kSecurityService";
+import { FileUploadDataset } from "../components/ModelsPage/FileUpload";
+import { classNames } from "primereact/utils";
+import { ProgressSpinner } from "primereact/progressspinner";
 
 const MODEL_TYPE_HDF5 = "HDF5/H5";
 const MODEL_TYPE_PICKLE = "PICKLE";
@@ -28,6 +37,13 @@ export default function ModelsPage() {
   const [filters, setFilters] = useState(null);
   const [editModelDialog, setEditModelDialog] = useState(false);
   const [dataModelEdited, setDataModelEdited] = useState(null);
+  const [addNewModelDialog, setAddNewModelDialog] = useState(false);
+  const [dataAddNewModel, setDataAddNewModel] = useState(null);
+  const [progress, setProgessState] = useState(0);
+  const [trainingSession, setTrainingSession] = useState(false);
+  const [totalFile, setTotalFile] = useState(null);
+  const [submitted, setSubmitted] = useState(false);
+  const [invalidVersionName, setInvalidVersionName] = useState(false);
   const toast = useRef(null);
   const path = useLocation();
   const type = path.pathname.replace("/models/", "").trim();
@@ -167,33 +183,26 @@ export default function ModelsPage() {
     return (
       <>
         {rawData?.state === "Training" ? (
-          <Button
-            icon="pi pi-pencil"
-            rounded
-            outlined
-            disabled
-            severity="warning"
-            className="mr-2"
-            onClick={() => editModels(rawData)}
-          />
+          <></>
         ) : (
-          <Button
-            icon="pi pi-pencil"
-            rounded
-            outlined
-            severity="warning"
-            className="mr-2"
-            onClick={() => editModels(rawData)}
-          />
+          <>
+            <Button
+              icon="pi pi-pencil"
+              rounded
+              outlined
+              severity="warning"
+              className="mr-2"
+              onClick={() => editModels(rawData)}
+            />
+            <Button
+              icon="pi pi-download"
+              rounded
+              outlined
+              className="mr-2"
+              onClick={() => download(rawData.id, rawData.type)}
+            />
+          </>
         )}
-
-        <Button
-          icon="pi pi-download"
-          rounded
-          outlined
-          className="mr-2"
-          onClick={() => download(rawData.id, rawData.type)}
-        />
       </>
     );
   };
@@ -266,6 +275,184 @@ export default function ModelsPage() {
     setDataModelEdited({ ..._dataModel, state: val });
   };
 
+  // Add new models training
+  const baseVersionItemTemplate = (option) => {
+    return <span className={`customer-badge status-version`}>{option}</span>;
+  };
+
+  const onShowAddModel = () => {
+    setAddNewModelDialog(true);
+  };
+
+  const rightToolbarTemplate = () => {
+    return (
+      <Button
+        label="New"
+        icon="pi pi-plus"
+        severity="success"
+        onClick={onShowAddModel}
+      />
+    );
+  };
+
+  const onHideAddNewModelDialog = () => {
+    setAddNewModelDialog(false);
+    setDataAddNewModel(null);
+    setSubmitted(false);
+    setTotalFile(null);
+    setInvalidVersionName(false);
+  };
+
+  const onVersionNameChange = (e) => {
+    const val = (e.target && e.target.value) || "";
+    if (dataAddNewModel) {
+      setDataAddNewModel({
+        ...dataAddNewModel,
+        versionName: val,
+      });
+    } else {
+      setDataAddNewModel({
+        versionName: val,
+      });
+    }
+  };
+
+  const onDropdownVersionChange = (e) => {
+    const val = (e.target && e.target.value) || "";
+    const value = val.toString();
+
+    if (dataAddNewModel) {
+      const selectedModel = models.find((item) => item.version === value);
+      if (selectedModel) {
+        setDataAddNewModel({
+          ...dataAddNewModel,
+          id: selectedModel.id,
+          baseVersion: value,
+        });
+      }
+    } else {
+      const selectedModel = models.find((item) => item.version === value);
+      if (selectedModel) {
+        setDataAddNewModel({
+          id: selectedModel.id,
+          baseVersion: value,
+        });
+      }
+    }
+  };
+
+  const onEpochChange = (e) => {
+    const val = (e.target && e.target.value) || "";
+    if (dataAddNewModel) {
+      setDataAddNewModel({
+        ...dataAddNewModel,
+        epoch: val,
+      });
+    } else {
+      setDataAddNewModel({
+        epoch: val,
+      });
+    }
+  };
+
+  const addNewModelDialogFooter = () => {
+    return (
+      <React.Fragment>
+        <Button
+          label="Cancel"
+          severity="danger"
+          icon="pi pi-times"
+          outlined
+          onClick={onHideAddNewModelDialog}
+        />
+        {dataAddNewModel?.versionName &&
+        dataAddNewModel?.epoch &&
+        dataAddNewModel?.baseVersion &&
+        totalFile ? (
+          <Button
+            label="Train"
+            severity="success"
+            icon="pi pi-check"
+            outlined
+            onClick={onAddNewModel}
+          />
+        ) : (
+          <Button
+            label="Train"
+            severity="success"
+            icon="pi pi-check"
+            outlined
+            disabled
+            onClick={onAddNewModel}
+          />
+        )}
+      </React.Fragment>
+    );
+  };
+
+  // handler upload dataset
+
+  const uploadHandler = async (event) => {
+    const files = event.files || [];
+
+    if (files.length >= 1) {
+      if (totalFile) {
+        setTotalFile({ ...totalFile, files: [...totalFile.files, ...files] });
+      } else {
+        setTotalFile({ files });
+      }
+      return;
+    }
+  };
+
+  const onAddNewModel = async () => {
+    setSubmitted(true);
+    let invalidFlag = false;
+    let listFilenameInvalid = [];
+
+    const response = await getModelDetails(dataAddNewModel?.id).then(
+      (response) => response.data
+    );
+    // check valid filename format
+    if (totalFile) {
+      totalFile.files.forEach((file) => {
+        if (isValidFilename(file.name, response?.output) === false) {
+          invalidFlag = true;
+          listFilenameInvalid.push(file.name);
+        }
+      });
+    }
+    // check validate version name format
+    if (dataAddNewModel && !validateVersionName(dataAddNewModel?.versionName)) {
+      setInvalidVersionName(true);
+    } else {
+      setInvalidVersionName(false);
+      if (invalidFlag) {
+        toast.current.show({
+          severity: "error",
+          summary: "Failure",
+          detail: `Filename of ${listFilenameInvalid.map(
+            (item) => item
+          )} are incorrect format`,
+        });
+        listFilenameInvalid = [];
+        setTotalFile(null);
+        return;
+      } else {
+        setTrainingSession(true);
+        await createModels(
+          totalFile?.files,
+          dataAddNewModel?.versionName,
+          dataAddNewModel?.id,
+          dataAddNewModel?.epoch
+        );
+        setTrainingSession(false);
+        onHideAddNewModelDialog();
+        onloadModels();
+      }
+    }
+  };
+
   useEffect(() => {
     const _filters = {
       global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -300,6 +487,13 @@ export default function ModelsPage() {
       </div>
 
       <div className="card mb-5">
+        <Toolbar
+          className="mb-2"
+          end={rightToolbarTemplate}
+          pt={{
+            root: { className: "p-2" },
+          }}
+        ></Toolbar>
         <DataTable
           value={models}
           dataKey="id"
@@ -403,6 +597,114 @@ export default function ModelsPage() {
           </div>
         </Dialog>
       )}
+
+      {/* Dialog Add New Models */}
+
+      <Dialog
+        visible={addNewModelDialog}
+        style={{ width: "64rem" }}
+        breakpoints={{ "960px": "75vw", "641px": "90vw" }}
+        header="Add New Models"
+        modal
+        className="p-fluid"
+        footer={addNewModelDialogFooter}
+        onHide={onHideAddNewModelDialog}
+      >
+        <div className="field">
+          <label htmlFor="name" className="font-bold">
+            Version Name
+          </label>
+          <InputText
+            id="version_name"
+            onChange={(e) => onVersionNameChange(e)}
+            placeholder="Version Name"
+            required
+            className={classNames({
+              "p-invalid":
+                submitted && !dataAddNewModel?.versionName | invalidVersionName,
+            })}
+          />
+          {submitted && !dataAddNewModel?.versionName && (
+            <small className="p-error">Version Name is required.</small>
+          )}
+          {invalidVersionName && (
+            <small className="p-error">Invalid Version Name Format</small>
+          )}
+        </div>
+        <div className="field">
+          <label className="mb-3 font-bold">Base Model</label>
+          {models && (
+            <Dropdown
+              value={dataAddNewModel?.baseVersion}
+              options={models.reduce((acc, item) => {
+                const version = item.version;
+                if (!acc.includes(version)) {
+                  acc.push(version);
+                }
+                return acc;
+              }, [])}
+              placeholder="Select a Base Model"
+              onChange={(e) => onDropdownVersionChange(e)}
+              itemTemplate={baseVersionItemTemplate}
+            />
+          )}
+        </div>
+        <div className="formgrid grid">
+          <div className="field col">
+            <label htmlFor="quantity" className="font-bold">
+              Epoch
+            </label>
+            <InputNumber
+              id="quantity"
+              placeholder="Enter Epoch"
+              min={1}
+              required
+              onValueChange={(e) => onEpochChange(e)}
+              className={classNames({
+                "p-invalid": submitted && !dataAddNewModel?.epoch,
+              })}
+            />
+            {submitted && !dataAddNewModel?.epoch && (
+              <small className="p-error">Epoch Field is required.</small>
+            )}
+          </div>
+        </div>
+        {dataAddNewModel?.baseVersion && (
+          <div className="field">
+            <label className="mb-3 font-bold">Dataset</label>
+
+            <FileUploadDataset
+              maxFileSize={100000000}
+              progress={progress}
+              uploadHandler={uploadHandler}
+              onClear={() => {
+                setTotalFile(null);
+              }}
+              onRemoveFile={(filename) => {
+                setTotalFile(
+                  totalFile?.files.filter((file) => file.name !== filename)
+                );
+              }}
+            />
+          </div>
+        )}
+      </Dialog>
+      {/* Progress dialog */}
+      <Dialog
+        visible={trainingSession}
+        style={{ width: "40rem" }}
+        breakpoints={{ "960px": "75vw", "641px": "90vw" }}
+        pt={{
+          closeButton: {
+            className: "hidden",
+          },
+        }}
+      >
+        <h5 className="text-center">Model is being created, wait a minutes!</h5>
+        <div className="m-0 flex justify-content-center">
+          <ProgressSpinner />
+        </div>
+      </Dialog>
     </>
   );
 }
