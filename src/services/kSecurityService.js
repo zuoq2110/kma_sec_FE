@@ -1,5 +1,4 @@
-// const BASE_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
-const BASE_URL = "http://192.168.1.104:8000";
+const BASE_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
 export const getDataAnalyzePage = () => {
     return JSON.parse(localStorage.getItem("dataAnalyze"));
 };
