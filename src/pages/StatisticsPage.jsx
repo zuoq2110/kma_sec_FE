@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Toast } from "primereact/toast";
 import { BreadCrumb } from "primereact/breadcrumb";
 import { Column } from "primereact/column";
@@ -10,13 +10,19 @@ import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
 import { FilterMatchMode, FilterOperator } from "primereact/api";
 import moment from "moment";
-import { getAnalysis } from "../services/kSecurityService";
+import {
+  getAndroidAnalysis,
+  getWindowAnalysis,
+} from "../services/kSecurityService";
 
 export default function StatisticsPage() {
   const [analysisData, setAnalysisData] = useState(null);
   const [globalFilter, setGlobalFilter] = useState("");
   const [filters, setFilters] = useState(null);
   const toast = useRef(null);
+  const location = useLocation();
+  const path = location.pathname;
+  const statisticType = path.replace("/statistics/", "").trim();
 
   const iconItemTemplate = (item, options) => {
     return (
@@ -58,12 +64,23 @@ export default function StatisticsPage() {
   );
   const idTemplate = (rawData) => {
     return (
-      <Link
-        to={`/statistics/android/${rawData.id}`}
-        style={{ textDecoration: "none", color: "var(--primary-color)" }}
-      >
-        {rawData.name}
-      </Link>
+      <>
+        {statisticType === "APK" ? (
+          <Link
+            to={`/statistics/APK/${rawData.id}`}
+            style={{ textDecoration: "none", color: "var(--primary-color)" }}
+          >
+            {rawData.name}
+          </Link>
+        ) : (
+          <Link
+            to={`/statistics/PE/${rawData.id}`}
+            style={{ textDecoration: "none", color: "var(--primary-color)" }}
+          >
+            {rawData.md5}
+          </Link>
+        )}
+      </>
     );
   };
 
@@ -109,7 +126,7 @@ export default function StatisticsPage() {
   };
 
   const home = { icon: "pi pi-home", url: "/", template: iconItemTemplate };
-  const items = [{ label: "Statistics" }];
+  const items = [{ label: "Statistics" }, { label: `${statisticType}` }];
 
   useEffect(() => {
     const _filters = {
@@ -125,14 +142,24 @@ export default function StatisticsPage() {
     };
 
     setFilters(_filters);
-    getAnalysis().then((response) => {
-      const data = response.data.map((item) => {
-        return { ...item, created_at: new Date(item.created_at) };
-      });
+    if (statisticType === "APK") {
+      getAndroidAnalysis().then((response) => {
+        const data = response.data.map((item) => {
+          return { ...item, created_at: new Date(item.created_at) };
+        });
 
-      setAnalysisData(data);
-    });
-  }, []);
+        setAnalysisData(data);
+      });
+    } else {
+      getWindowAnalysis().then((response) => {
+        const data = response.data.map((item) => {
+          return { ...item, created_at: new Date(item.created_at) };
+        });
+
+        setAnalysisData(data);
+      });
+    }
+  }, [statisticType]);
 
   return (
     <>
@@ -151,49 +178,90 @@ export default function StatisticsPage() {
       </div>
 
       <div className="card mb-5">
-        <DataTable
-          value={analysisData}
-          paginator
-          filters={filters}
-          removableSort
-          rows={10}
-          rowsPerPageOptions={[10, 20, 50, 100]}
-          paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
-          header={header}
-        >
-          <Column
-            field="name"
-            header="Name"
-            sortable
-            body={idTemplate}
-            style={{ minWidth: "10rem" }}
-          ></Column>
-          <Column
-            field="package"
-            header="Package"
-            style={{ minWidth: "10rem" }}
-          ></Column>
-          <Column
-            field="malware_type"
-            header="Type"
-            style={{ minWidth: "10rem" }}
-            filter
-            filterElement={typeFilterElement}
-            showAddButton={false}
-          ></Column>
-          <Column
-            field="created_at"
-            header="Created Date"
-            sortable
-            body={createdDateTemplate}
-            style={{ minWidth: "16rem" }}
-            filter
-            filterField="created_at"
-            dataType="date"
-            filterElement={dateFilterTemplate}
-          ></Column>
-        </DataTable>
+        {statisticType === "APK" ? (
+          <DataTable
+            value={analysisData}
+            paginator
+            filters={filters}
+            removableSort
+            rows={10}
+            rowsPerPageOptions={[10, 20, 50, 100]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+            header={header}
+          >
+            <Column
+              field="name"
+              header="Name"
+              sortable
+              body={idTemplate}
+              style={{ minWidth: "10rem" }}
+            ></Column>
+            <Column
+              field="package"
+              header="Package"
+              style={{ minWidth: "10rem" }}
+            ></Column>
+            <Column
+              field="malware_type"
+              header="Type"
+              style={{ minWidth: "10rem" }}
+              filter
+              filterElement={typeFilterElement}
+              showAddButton={false}
+            ></Column>
+            <Column
+              field="created_at"
+              header="Created Date"
+              sortable
+              body={createdDateTemplate}
+              style={{ minWidth: "16rem" }}
+              filter
+              filterField="created_at"
+              dataType="date"
+              filterElement={dateFilterTemplate}
+            ></Column>
+          </DataTable>
+        ) : (
+          <DataTable
+            value={analysisData}
+            paginator
+            filters={filters}
+            removableSort
+            rows={10}
+            rowsPerPageOptions={[10, 20, 50, 100]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+            header={header}
+          >
+            <Column
+              field="md5"
+              header="MD5"
+              sortable
+              body={idTemplate}
+              style={{ minWidth: "10rem" }}
+            ></Column>
+            <Column
+              field="malware_type"
+              header="Type"
+              style={{ minWidth: "10rem" }}
+              filter
+              filterElement={typeFilterElement}
+              showAddButton={false}
+            ></Column>
+            <Column
+              field="created_at"
+              header="Created Date"
+              sortable
+              body={createdDateTemplate}
+              style={{ minWidth: "16rem" }}
+              filter
+              filterField="created_at"
+              dataType="date"
+              filterElement={dateFilterTemplate}
+            ></Column>
+          </DataTable>
+        )}
       </div>
     </>
   );

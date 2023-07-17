@@ -1,14 +1,16 @@
-import React, { useContext, useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Toast } from "primereact/toast";
 import { Divider } from "primereact/divider";
 import { BreadCrumb } from "primereact/breadcrumb";
 import { Button } from "primereact/button";
-import { DataContext } from "../context/dataContext";
 import { Accordion, AccordionTab } from "primereact/accordion";
+import {
+  getDataAnalyzePage,
+  getWindowDetails,
+} from "../services/kSecurityService";
 
 export default function WindowAnalyzeDetail() {
-  const { dataWindowAnalysis } = useContext(DataContext);
   const path = useLocation();
   const toast = useRef(null);
   const [filename, setFilename] = useState(null);
@@ -20,21 +22,34 @@ export default function WindowAnalyzeDetail() {
   const [dataSections, setDataSections] = useState(null);
 
   useEffect(() => {
-    const { _dataPE, fileName } = dataWindowAnalysis;
-    setFilename(fileName);
-    setDataPe(_dataPE);
-    setDataFieldHeader({
-      dos_header: _dataPE.dos_header,
-      header: _dataPE.header,
-      optional_header: _dataPE.optional_header,
+    const analysisWindowId = pathNames.at(-1).trim();
+    getWindowDetails(analysisWindowId).then((response) => {
+      setDataPe(response.data);
+      setDataFieldHeader({
+        dos_header: response.data.dos_header,
+        header: response.data.header,
+        optional_header: response.data.optional_header,
+      });
+      setDataLibraries(response.data.libraries);
+      setDataSections(response.data.sections);
     });
-    setDataLibraries(_dataPE.libraries);
-    setDataSections(_dataPE.sections);
-  }, [dataWindowAnalysis]);
 
-  function save(analysisDetails) {
+    let _dataAnalyze = getDataAnalyzePage();
+    let dataAnalyzes = _dataAnalyze ? _dataAnalyze : [];
+
+    if (dataAnalyzes) {
+      dataAnalyzes.map((item) => {
+        if (item.id === analysisWindowId) {
+          setFilename(item.fileName);
+        }
+        return null;
+      });
+    }
+  }, []);
+
+  function save(analysisWindowDetails) {
     try {
-      const json = JSON.stringify(analysisDetails);
+      const json = JSON.stringify(analysisWindowDetails);
       const blob = new Blob([json], { type: "application/json" });
       const link = document.createElement("a");
       link.href = window.URL.createObjectURL(blob);
@@ -125,7 +140,7 @@ export default function WindowAnalyzeDetail() {
         <>
           <div className="flex flex-wrap justify-content-between align-items-center mb-4">
             <p className="mb-0" style={{ fontSize: "1.5rem" }}>
-              File Name: {filename}
+              {filename ? `File Name: ${filename}` : ""}
             </p>
             <Button label="Save" onClick={() => save(dataPE)} />
           </div>
