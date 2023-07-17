@@ -25,16 +25,9 @@ export const privateRoutes = [
       </DefaultLayout>
     ),
   },
+  // analyze file
   {
     path: "/analyze/android/:id",
-    element: (
-      <DefaultLayout>
-        <AndroidAnalyzeDetail />
-      </DefaultLayout>
-    ),
-  },
-  {
-    path: "/statistics/android/:id",
     element: (
       <DefaultLayout>
         <AndroidAnalyzeDetail />
@@ -49,6 +42,24 @@ export const privateRoutes = [
       </DefaultLayout>
     ),
   },
+  // Statistic to analyze page
+  {
+    path: "/statistics/APK/:id",
+    element: (
+      <DefaultLayout>
+        <AndroidAnalyzeDetail />
+      </DefaultLayout>
+    ),
+  },
+  {
+    path: "/statistics/PE/:id",
+    element: (
+      <DefaultLayout>
+        <WindowAnalyzeDetail />
+      </DefaultLayout>
+    ),
+  },
+  // Models
   {
     path: "/models/PE",
     element: (
@@ -65,6 +76,7 @@ export const privateRoutes = [
       </DefaultLayout>
     ),
   },
+  // Models detail
   {
     path: "/models/:id",
     element: (
@@ -73,12 +85,22 @@ export const privateRoutes = [
       </DefaultLayout>
     ),
   },
+  //login
   {
     path: "/login",
     element: <LoginPage />,
   },
+  // Statistic Page
   {
-    path: "/statistics",
+    path: "/statistics/APK",
+    element: (
+      <DefaultLayout>
+        <StatisticsPage />
+      </DefaultLayout>
+    ),
+  },
+  {
+    path: "/statistics/PE",
     element: (
       <DefaultLayout>
         <StatisticsPage />

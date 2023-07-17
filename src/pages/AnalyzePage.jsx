@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Toast } from "primereact/toast";
 import { BreadCrumb } from "primereact/breadcrumb";
@@ -8,8 +8,6 @@ import { ProgressBar } from "primereact/progressbar";
 import { Button } from "primereact/button";
 import { Tooltip } from "primereact/tooltip";
 import { Tag } from "primereact/tag";
-import { v4 as uuidv4 } from "uuid";
-import { DataContext } from "../context/dataContext";
 import { analyze } from "../services/kSecurityService";
 import { getDataAnalyzePage } from "../services/kSecurityService";
 
@@ -201,7 +199,6 @@ function AnalyzeFileUpload({ maxFileSize, progress, uploadHandler }) {
 
 export default function AnalyzePage() {
   const navigate = useNavigate();
-  const { setDataWindowAnalysis } = useContext(DataContext);
   const [progress, setProgessState] = useState(0);
   const toast = useRef(null);
   const [storeDataAnalyze, setStoreDataAnalyze] = useState(null);
@@ -239,7 +236,6 @@ export default function AnalyzePage() {
 
     setTimeout(async () => {
       let id = response.data.analysis_id;
-      let _dataPE = response.data;
       let dataAnalyzes = storeDataAnalyze ? storeDataAnalyze : [];
 
       const existingItemIndex = dataAnalyzes.findIndex(
@@ -253,10 +249,6 @@ export default function AnalyzePage() {
       }
       await localStorage.setItem("dataAnalyze", JSON.stringify(dataAnalyzes));
 
-      if (type === "windows") {
-        id = uuidv4().replace(/-/g, "");
-        setDataWindowAnalysis({ _dataPE, fileName });
-      }
       navigate(`/analyze/${type}/${id}`);
     }, 1500);
   };
