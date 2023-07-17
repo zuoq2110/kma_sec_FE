@@ -45,6 +45,7 @@ export default function WindowAnalyzeDetail() {
         return null;
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function save(analysisWindowDetails) {
@@ -147,7 +148,15 @@ export default function WindowAnalyzeDetail() {
 
           <div className="card px-6 mb-5">
             <div className="flex flex-wrap justify-content-between align-items-center mx-3 mt-2 mb-5">
-              <p className="my-0" style={{ fontSize: "1.25rem" }}></p>
+              <div>
+                <span
+                  className="my-0 font-bold"
+                  style={{ fontSize: "1.25rem" }}
+                >
+                  MD5: {""}
+                </span>
+                <span style={{ fontSize: "1.25rem" }}>{dataPE.md5}</span>
+              </div>
               <h4 className="my-0">{dataPE.malware_type}</h4>
             </div>
 

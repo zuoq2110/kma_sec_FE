@@ -63,7 +63,6 @@ export default function ModelDetailsPage() {
     if (item.label === "Models") {
       return {
         ...item,
-        url: "/models/",
         template: iconItemTemplate,
       };
     } else {
