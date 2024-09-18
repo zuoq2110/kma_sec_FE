@@ -3,6 +3,10 @@ export const getDataAnalyzePage = () => {
     return JSON.parse(localStorage.getItem("dataAnalyze"));
 };
 
+export const getAndroidApplications = () => {
+    return JSON.parse(localStorage.getItem("dataAnalyze"));
+};
+
 export async function analyze(file, type) {
     const formData = new FormData();
     const url = new URL(`${BASE_URL}/api/v1/${type}/applications`);
@@ -48,7 +52,7 @@ export async function getModelSource(id, format) {
     window.location.href = url;
 }
 
-export async function getAndroidAnalysis(page = 1, limit = 20) {
+export async function getAndroidAnalysis(page =1, limit=100) {
     const params = { page: page, limit: limit };
     const url = new URL(`${BASE_URL}/api/v1/android/applications`);
     let response;

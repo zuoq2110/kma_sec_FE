@@ -45,6 +45,21 @@ export const dataMenusAuth = [{
                 icon: "pi pi-fw pi-desktop",
                 to: MONITOR_SERVICE_URL,
             },
+            {
+                label: "Visualization",
+                icon: "pi pi-fw pi-desktop",
+                items: [{
+                    label: "APK",
+                    icon: "pi pi-fw pi-android",
+                    to: "/visualization/APK",
+                },
+                {
+                    label: "PE",
+                    icon: "pi pi-fw pi-desktop",
+                    to: "/visualization/PE",
+                },
+            ],
+            },
         ],
     },
 ];

@@ -94,6 +94,7 @@ export default function AndroidAnalyzeDetail() {
 
   useEffect(() => {
     const analysisId = pathNames.at(-1).trim();
+    console.log(analysisId);
 
     getAnalysisDetails(analysisId).then((response) =>
       setAnalysisDetails(response.data)
