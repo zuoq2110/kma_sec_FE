@@ -143,11 +143,11 @@ export default function StatisticsPage() {
 
     setFilters(_filters);
     if (statisticType === "APK") {
-      getAndroidAnalysis().then((response) => {
+      getAndroidAnalysis( 1,100).then((response) => {
         const data = response.data.map((item) => {
           return { ...item, created_at: new Date(item.created_at) };
         });
-
+        console.log(data);
         setAnalysisData(data);
       });
     } else {

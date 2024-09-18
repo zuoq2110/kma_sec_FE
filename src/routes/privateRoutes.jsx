@@ -7,6 +7,7 @@ import StatisticsPage from "../pages/StatisticsPage.jsx";
 import AnalyzePage from "../pages/AnalyzePage.jsx";
 import AndroidAnalyzeDetail from "../pages/AndroidAnalyzeDetail.jsx";
 import NotFoundPage from "../pages/NotFoundPage.jsx";
+import Visualization from "../pages/Visualization.jsx";
 
 export const privateRoutes = [
   {
@@ -104,6 +105,22 @@ export const privateRoutes = [
     element: (
       <DefaultLayout>
         <StatisticsPage />
+      </DefaultLayout>
+    ),
+  },
+  {
+    path: "/visualization/APK",
+    element: (
+      <DefaultLayout>
+        <Visualization />
+      </DefaultLayout>
+    ),
+  },
+  {
+    path: "/visualization/PE",
+    element: (
+      <DefaultLayout>
+        <Visualization />
       </DefaultLayout>
     ),
   },
