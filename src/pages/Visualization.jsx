@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Chart } from 'primereact/chart';
-import { getAndroidAnalysis } from '../services/kSecurityService';
+import { getAndroidAnalysis, getWindowAnalysis } from '../services/kSecurityService';
 import { Dropdown } from 'primereact/dropdown';
 import { BY_LASTEST_15_DAYS, BY_LASTEST_30_DAYS, BY_LASTEST_3_DAYS, BY_LASTEST_7_DAYS, BY_MONTH, BY_YEAR, formatDate } from '../utils/Labels';
+import { Link, useLocation } from 'react-router-dom';
+import { FilterMatchMode, FilterOperator } from 'primereact/api';
 
 const Visualization = () => {
 
@@ -10,14 +12,42 @@ const Visualization = () => {
 
     const [chartData, setChartData] = useState({});
     const [chartOptions, setChartOptions] = useState({});
-    const [androidApps, setAndroidApps] = useState()
     const [orderByMonthlyOfYear, setOrderByMonthlyOfYear] = useState(
         new Date().getFullYear() + ""
     );
     const dataNumberOfBenign = useRef(new Array(12).fill(0));
     const dataNumberOfMalware = useRef(new Array(12).fill(0));
     const [orderByLatestDate, setOrderByLatestDate] = useState("3");
+    const [latestDays, setLatestDays] = useState()
     const [labels, setLabels] = useState(BY_MONTH);
+    const [analysisData, setAnalysisData] = useState(null);
+    const location = useLocation();
+    const path = location.pathname;
+    const statisticType = path.replace("/visualization/", "").trim();
+    useEffect(() => {
+
+        if (statisticType === "APK") {
+            getAndroidAnalysis().then((response) => {
+                const data = response.data.map((item) => {
+                    return { ...item, created_at: new Date(item.created_at) };
+                });
+                console.log(data);
+                setAnalysisData(data);
+            });
+        } else {
+            getWindowAnalysis().then((response) => {
+                const data = response.data.map((item) => {
+                    return { ...item, created_at: new Date(item.created_at) };
+                });
+                console.log(data);
+
+                setAnalysisData(data);
+            });
+        }
+    }, [statisticType]);
+
+
+
     function handleChangeOrderByStatistics(event
     ) {
         setOrderByStatistics(event.target.value);
@@ -32,14 +62,17 @@ const Visualization = () => {
         if (event.target.value === "daily") {
             setLabels(BY_LASTEST_3_DAYS);
             setOrderByLatestDate("3");
+            setLatestDays(BY_LASTEST_3_DAYS)
             updateData(
                 event.target.value,
                 new Date().getFullYear() + "",
-                BY_LASTEST_3_DAYS
+                latestDays
             );
         }
     }
-    console.log('handleChangeOrderByStatistics:', handleChangeOrderByStatistics);
+
+    console.log('latestDays:', latestDays);
+    console.log('labels:', labels);
 
 
     function handleChangeOrderByLatestDate(
@@ -48,36 +81,48 @@ const Visualization = () => {
         setOrderByLatestDate(event.target.value);
         switch (event.target.value) {
             case "3":
+                setLabels(BY_LASTEST_3_DAYS);
+
+                setLatestDays(BY_LASTEST_3_DAYS)
+
                 updateData(
                     orderByStatistics,
                     new Date().getFullYear() + "",
-                    BY_LASTEST_3_DAYS
+                    latestDays
                 );
-                setLabels(BY_LASTEST_3_DAYS);
                 break;
             case "7":
+                setLabels(BY_LASTEST_7_DAYS);
+
+                setLatestDays(BY_LASTEST_7_DAYS)
+
                 updateData(
                     orderByStatistics,
                     new Date().getFullYear() + "",
-                    BY_LASTEST_7_DAYS
+                    latestDays
                 );
-                setLabels(BY_LASTEST_7_DAYS);
                 break;
             case "15":
+                setLabels(BY_LASTEST_15_DAYS);
+
+                setLatestDays(BY_LASTEST_15_DAYS)
+
                 updateData(
                     orderByStatistics,
                     new Date().getFullYear() + "",
-                    BY_LASTEST_15_DAYS
+                    latestDays
                 );
-                setLabels(BY_LASTEST_15_DAYS);
                 break;
             case "30":
+                setLabels(BY_LASTEST_30_DAYS);
+
+                setLatestDays(BY_LASTEST_30_DAYS)
+
                 updateData(
                     orderByStatistics,
                     new Date().getFullYear() + "",
-                    BY_LASTEST_30_DAYS
+                    latestDays
                 );
-                setLabels(BY_LASTEST_30_DAYS);
 
                 break;
             default:
@@ -90,20 +135,10 @@ const Visualization = () => {
         setOrderByMonthlyOfYear(event.target.value);
         updateData(orderByStatistics, event.target.value);
     }
-    useEffect(() => {
-        const fetchData = async () => {
-            await getAndroidAnalysis()
-                .then((response) => {
-                    setAndroidApps(response)
-                })
-        }
 
-        fetchData()
-    }, [])
-    console.log('OrderByMonthlyOfYear:', orderByMonthlyOfYear);
 
     const updateData = useMemo(
-        () => (option, year, latestDays) => {
+        () => (option, year, days = latestDays) => {
             switch (option) {
                 case "yearly":
                     console.log('option yearly');
@@ -113,7 +148,7 @@ const Visualization = () => {
                     const newDataNumberOfMalware_Yearly = new Array(BY_YEAR.length).fill(
                         0
                     );
-                    androidApps.data?.forEach((app) => {
+                    analysisData?.forEach((app) => {
                         const createdDate = new Date(app.created_at);
                         if (app.malware_type === "Benign") {
                             const year = createdDate.getFullYear() + "";
@@ -129,12 +164,10 @@ const Visualization = () => {
                     console.log('dataNumberOfMalware.current:', dataNumberOfMalware.current);
                     break;
                 case "monthly":
-                    console.log('option', option);
-                    console.log('year', year);
 
                     const newDataNumberOfBenign_Monthly = new Array(12).fill(0);
                     const newDataNumberOfMalware_Monthly = new Array(12).fill(0);
-                    androidApps.data?.forEach((app) => {
+                    analysisData?.forEach((app) => {
                         const createdDate = new Date(app.created_at);
                         if (
                             app.malware_type === "Benign" &&
@@ -165,36 +198,36 @@ const Visualization = () => {
                     dataNumberOfMalware.current = newDataNumberOfMalware_Monthly;
                     break;
                 case "daily":
-                    console.log('latestDays:', latestDays);
+                    console.log('days:', days);
                     console.log('year:', year);
                     console.log('option:', option);
-                    if (!latestDays) return
+                    if (!days) return
                     const newDataNumberOfBenign_Daily = new Array(
-                        latestDays?.length
+                        days?.length
                     ).fill(0);
                     const newDataNumberOfMalware_Daily = new Array(
-                        latestDays?.length
+                        days?.length
                     ).fill(0);
-                    androidApps.data?.forEach((app) => {
+                    analysisData?.forEach((app) => {
                         const createdDate = new Date(app.created_at);
                         const createdDateFormatted = formatDate(createdDate);
 
                         if (
                             app.malware_type === "Benign" &&
-                            latestDays?.includes(createdDateFormatted)
+                            days?.includes(createdDateFormatted)
                         ) {
                             newDataNumberOfBenign_Daily[
-                                latestDays.indexOf(createdDateFormatted)
+                                days.indexOf(createdDateFormatted)
                             ] += 1;
 
 
                         }
                         else if (
                             app.malware_type !== "Benign" &&
-                            latestDays?.includes(createdDateFormatted)
+                            days?.includes(createdDateFormatted)
                         ) {
                             newDataNumberOfMalware_Daily[
-                                latestDays.indexOf(createdDateFormatted)
+                                days.indexOf(createdDateFormatted)
                             ] += 1;
                         }
                     });
@@ -208,18 +241,18 @@ const Visualization = () => {
 
 
         },
-        [androidApps]
+        [analysisData,latestDays]
     );
 
     useEffect(() => {
-        if (androidApps) updateData(orderByStatistics, orderByMonthlyOfYear)
-    }, [androidApps, orderByMonthlyOfYear, orderByStatistics, updateData])
+        if (analysisData) updateData(orderByStatistics, orderByMonthlyOfYear)
+    }, [analysisData, orderByMonthlyOfYear, orderByStatistics, updateData, orderByLatestDate])
 
     useEffect(() => {
-        console.log('androidApps:', androidApps);
+        console.log('analysisData:', analysisData);
         console.log('Benign Data:', dataNumberOfBenign.current);
         console.log('Malware Data:', dataNumberOfMalware.current);
-    }, [androidApps]);
+    }, [analysisData]);
 
     useEffect(() => {
         const documentStyle = getComputedStyle(document.documentElement);
