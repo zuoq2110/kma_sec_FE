@@ -1,4 +1,4 @@
-const BASE_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
+export const BASE_URL = process.env.REACT_APP_KSECURITY_SERVICE_URL;
 export const getDataAnalyzePage = () => {
     return JSON.parse(localStorage.getItem("dataAnalyze"));
 };
@@ -9,11 +9,23 @@ export const getAndroidApplications = () => {
 
 export async function analyze(file, type) {
     const formData = new FormData();
+    const token = localStorage.getItem("token")
+    
     const url = new URL(`${BASE_URL}/api/v1/${type}/applications`);
     let response;
 
     formData.append("file", file);
-    response = await fetch(url, { method: "POST", body: formData });
+
+    const headers = {};
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+    console.log(headers);
+    response = await fetch(url, { method: "POST",
+        ...(Object.keys(headers).length > 0 && { headers }),
+        body: formData 
+    });
+    console.log(response);
     return await response.json();
 }
 
@@ -52,9 +64,12 @@ export async function getModelSource(id, format) {
     window.location.href = url;
 }
 
-export async function getAndroidAnalysis(page =1, limit=100) {
-    const params = { page: page, limit: limit };
+export async function getAndroidAnalysis(page =1, limit) {
+    const params = { page: page};
     const url = new URL(`${BASE_URL}/api/v1/android/applications`);
+    if (limit !== undefined) {
+        params.limit = limit;
+    }
     let response;
 
     Object.keys(params).forEach((key) =>
@@ -140,3 +155,4 @@ export const getWindowDetails = async(id) => {
 
     return fetch(url, { method: "GET" }).then((response) => response.json());
 };
+

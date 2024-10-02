@@ -1,6 +1,6 @@
 import React, { useContext, useRef, useState } from "react";
 import { Checkbox } from "primereact/checkbox";
-import { Button } from "primereact/button";
+import { Button } from 'primereact/button';
 import { Password } from "primereact/password";
 import { LayoutContext } from "../context/layoutContext";
 import { InputText } from "primereact/inputtext";
@@ -13,6 +13,7 @@ import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 import * as yup from "yup";
+import { BASE_URL } from "../services/kSecurityService";
 
 const schema = yup.object({
   username: yup.string().required("This field is required"),
@@ -43,8 +44,65 @@ const LoginPage = () => {
     resolver: yupResolver(schema),
   });
 
-  const onHandleSubmit = (data) => {
-    const { username, password } = data;
+  const onHandleSubmit = async (data) => {
+    const { username, password } = data
+
+    try {
+      const formData = new URLSearchParams()
+      formData.append("username", username)
+      formData.append("password", password)
+
+      const url = new URL(`${BASE_URL}/api/v1/user/token`);
+      const response = await fetch(url,
+        {
+          method: "POST",
+          headers: {
+            "Content-type": "application/x-www-form-urlencoded",
+          },
+          body: formData
+        }
+      )
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('token', data.access_token)
+        localStorage.setItem('id', data.id)
+        localStorage.setItem('isAdmin', data.isAdmin)
+        toast.current.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Successfully! Return login page after 3s",
+        });
+        if (data.isAdmin === true) {
+          login(username, password);
+          navigate("/");
+        }
+        if (data.isAdmin !== true) {
+          login(username, password);
+          navigate("/");
+        }
+         else {
+          navigate("/");
+        }
+      } else {
+        toast.current.show({
+          severity: "error",
+          summary: "Failure",
+          detail: "error",
+        });
+      }
+
+
+
+      reset({
+        username: "",
+        password: "",
+        confirmPassword: ""
+      });
+    }
+    catch (error) {
+      console.log(error);
+
+    }
 
     authentication(username, password);
     reset({
@@ -77,7 +135,6 @@ const LoginPage = () => {
       show();
     }
   };
-
   return (
     <div className={containerClassName}>
       <Toast ref={toast} />
@@ -94,9 +151,10 @@ const LoginPage = () => {
             className="w-full surface-card py-7 px-5 sm:px-7"
             style={{ borderRadius: "53px" }}
           >
+
             <div className="text-center mb-2">
               <div className="text-900 text-3xl font-medium mb-3">
-                Sign in to continue{" "}
+                Sign in
               </div>
             </div>
 
@@ -162,20 +220,29 @@ const LoginPage = () => {
                   ></Checkbox>
                   <label htmlFor="rememberme1">Remember me</label>
                 </div>
-                <Link
-                  className="font-medium no-underline ml-2 text-right cursor-pointer"
-                  style={{ color: "var(--primary-color)" }}
-                >
-                  Forgot password?
-                </Link>
+                <div >
+                  <label>
+                    Bạn chưa có tài khoản? <Link to={"/register"} className="font-medium">
+                      Đăng ký
+                    </Link>
+                  </label>
+                </div>
+
               </div>
 
               <Button type="submit" label="Sign In" />
+              <Link
+                className="font-medium no-underline ml-2 text-right cursor-pointer"
+                style={{ color: "var(--primary-color)" }}
+              >
+                Forgot password?
+              </Link>
             </form>
+
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

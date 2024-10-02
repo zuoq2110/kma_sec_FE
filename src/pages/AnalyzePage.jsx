@@ -8,7 +8,7 @@ import { ProgressBar } from "primereact/progressbar";
 import { Button } from "primereact/button";
 import { Tooltip } from "primereact/tooltip";
 import { Tag } from "primereact/tag";
-import { analyze } from "../services/kSecurityService";
+import { analyze, BASE_URL } from "../services/kSecurityService";
 import { getDataAnalyzePage } from "../services/kSecurityService";
 
 const CONTENT_TYPE_APK = "application/vnd.android.package-archive";
@@ -203,6 +203,7 @@ export default function AnalyzePage() {
   const toast = useRef(null);
   const [storeDataAnalyze, setStoreDataAnalyze] = useState(null);
 
+  
   useEffect(() => {
     let _dataAnalyze = getDataAnalyzePage();
     setStoreDataAnalyze(_dataAnalyze);

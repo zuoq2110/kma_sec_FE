@@ -1,6 +1,6 @@
 const MONITOR_SERVICE_URL = process.env.REACT_APP_MONITOR_SERVICE_URL;
 
-export const dataMenusAuth = [{
+export const dataMenusAdmin = [{
         label: "Dashboard",
         items: [{
             label: "Analyze",
@@ -63,8 +63,36 @@ export const dataMenusAuth = [{
         ],
     },
 ];
-
-export const dataMenus = [{
+export const dataMenusUser = [{
+    label: "Dashboard",
+    items: [{
+        label: "Analyze",
+        icon: "pi pi-chart-bar",
+        to: "/analyze/",
+    }, ],
+},
+{
+    label: "Manage",
+    items: [{
+            label: "Statistics",
+            icon: "pi pi-fw pi-chart-line",
+            items: [{
+                    label: "APK",
+                    icon: "pi pi-fw pi-android",
+                    to: "/statistics/APK",
+                },
+                {
+                    label: "PE",
+                    icon: "pi pi-fw pi-desktop",
+                    to: "/statistics/PE",
+                },
+            ],
+        },
+       
+    ],
+},
+];
+export const dataMenusClient = [{
     label: "Dashboard",
     items: [{
         label: "Analyze",
