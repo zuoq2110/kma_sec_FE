@@ -1,13 +1,15 @@
 import DefaultLayout from "../layout/DefaultLayout.jsx";
-import WindowAnalyzeDetail from "../pages/WindowAnalyzeDetail.jsx";
-import ModelsPage from "../pages/ModelsPage.jsx";
-import ModelDetailsPage from "../pages/ModelDetailsPage.jsx";
-import LoginPage from "../pages/Login.jsx";
-import StatisticsPage from "../pages/StatisticsPage.jsx";
 import AnalyzePage from "../pages/AnalyzePage.jsx";
 import AndroidAnalyzeDetail from "../pages/AndroidAnalyzeDetail.jsx";
+import LoginPage from "../pages/Login.jsx";
+import ModelDetailsPage from "../pages/ModelDetailsPage.jsx";
+import ModelsPage from "../pages/ModelsPage.jsx";
 import NotFoundPage from "../pages/NotFoundPage.jsx";
+import Register from "../pages/Register.jsx";
+import StatisticsPage from "../pages/StatisticsPage.jsx";
 import Visualization from "../pages/Visualization.jsx";
+import WindowAnalyzeDetail from "../pages/WindowAnalyzeDetail.jsx";
+
 
 export const privateRoutes = [
   {
@@ -90,6 +92,10 @@ export const privateRoutes = [
   {
     path: "/login",
     element: <LoginPage />,
+  },
+  {
+    path: "/register",
+    element: <Register />,
   },
   // Statistic Page
   {

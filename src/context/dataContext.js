@@ -1,3 +1,4 @@
+import { jwtDecode } from "jwt-decode";
 import React, { useCallback, useEffect, useState } from "react";
 
 const DataContext = React.createContext();
@@ -5,9 +6,10 @@ const DataContext = React.createContext();
 function DataProvider({ children }) {
   const [dataWindowAnalysis, setDataWindowAnalysis] = useState(null);
   const [dataUser, setDataUser] = useState(null);
-
+  const [isAdmin, setIsAdmin] = useState(false)
   useEffect(() => {
     setDataUser(JSON.parse(localStorage.getItem("dataUser")));
+    setIsAdmin(JSON.parse(localStorage.getItem("isAdmin")));
   }, []);
 
   useEffect(() => {
@@ -19,11 +21,28 @@ function DataProvider({ children }) {
   }, [dataUser]);
 
   const login = useCallback((email, password) => {
-    setDataUser({ email, password });
+    const isAdminRole = localStorage.getItem("isAdmin")
+    console.log("isAdminRole", isAdminRole);
+    if (isAdminRole === "true") {
+      setDataUser({ email, password });
+      setIsAdmin(true)
+      console.log(isAdmin);
+
+    } else {
+      setDataUser({ email, password });
+      setIsAdmin(false)
+      console.log(isAdmin);
+
+    }
+
   }, []);
 
   const logout = useCallback(() => {
     setDataUser(null);
+    localStorage.removeItem("token");
+    localStorage.removeItem("isAdmin");
+    localStorage.removeItem("id");
+
   }, []);
 
   return (
@@ -32,6 +51,7 @@ function DataProvider({ children }) {
         dataWindowAnalysis,
         setDataWindowAnalysis,
         dataUser,
+        isAdmin,
         setDataUser,
         login,
         logout,
@@ -44,3 +64,4 @@ function DataProvider({ children }) {
 
 export default DataProvider;
 export { DataContext };
+

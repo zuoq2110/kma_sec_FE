@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Toast } from "primereact/toast";
 import { BreadCrumb } from "primereact/breadcrumb";
@@ -11,9 +11,12 @@ import { Calendar } from "primereact/calendar";
 import { FilterMatchMode, FilterOperator } from "primereact/api";
 import moment from "moment";
 import {
+  BASE_URL,
   getAndroidAnalysis,
   getWindowAnalysis,
 } from "../services/kSecurityService";
+import { DataContext } from "../context/dataContext";
+import { Button } from "primereact/button";
 
 export default function StatisticsPage() {
   const [analysisData, setAnalysisData] = useState(null);
@@ -23,6 +26,7 @@ export default function StatisticsPage() {
   const location = useLocation();
   const path = location.pathname;
   const statisticType = path.replace("/statistics/", "").trim();
+  const { isAdmin } = useContext(DataContext)
 
   const iconItemTemplate = (item, options) => {
     return (
@@ -142,24 +146,93 @@ export default function StatisticsPage() {
     };
 
     setFilters(_filters);
-    if (statisticType === "APK") {
-      getAndroidAnalysis( 1,100).then((response) => {
-        const data = response.data.map((item) => {
-          return { ...item, created_at: new Date(item.created_at) };
+    const userId = localStorage.getItem('id')
+    if (isAdmin === false) {
+      if (statisticType === "APK") {
+        getAndroidAnalysis().then((response) => {
+          const data = response.data.map((item) => {
+            return { ...item, created_at: new Date(item.created_at) };
+          });
+          const userData = data.filter(item => item.created_by === userId)
+          setAnalysisData(userData);
         });
-        console.log(data);
-        setAnalysisData(data);
-      });
-    } else {
-      getWindowAnalysis().then((response) => {
-        const data = response.data.map((item) => {
-          return { ...item, created_at: new Date(item.created_at) };
-        });
+      } else {
+        getWindowAnalysis().then((response) => {
+          const data = response.data.map((item) => {
+            return { ...item, created_at: new Date(item.created_at) };
+          });
+          const userData = data.filter(item => item.created_by === userId)
+          setAnalysisData(userData);
 
-        setAnalysisData(data);
-      });
+        });
+      }
+    }
+    else {
+      if (statisticType === "APK") {
+        getAndroidAnalysis().then((response) => {
+          const data = response.data.map((item) => {
+            return { ...item, created_at: new Date(item.created_at) };
+          });
+          console.log(data);
+          setAnalysisData(data);
+        });
+      } else {
+        getWindowAnalysis().then((response) => {
+          const data = response.data.map((item) => {
+            return { ...item, created_at: new Date(item.created_at) };
+          });
+
+          setAnalysisData(data);
+        });
+      }
+
     }
   }, [statisticType]);
+
+  const downloadTemplate = (rowData) => {
+    const handleDownload = async () => {
+      const fileName = rowData.name // Tên tệp bạn muốn tải xuống
+      console.log(fileName);
+        const webName = 'KMA_SEC'; // Tên thư mục trên HDFS hoặc tên bạn đã sử dụng
+
+        try {
+            const response = await fetch(`${BASE_URL}/api/v1/android/download?file_name=${fileName}&web_name=${webName}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            // Tạo một URL từ Blob và tải xuống tệp
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName; // Tên tệp sẽ được tải xuống
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error during download:', error);
+        }
+      console.log(`Downloading file for ${rowData.name}`);
+    };
+  
+    return (
+      <Button 
+        className="p-button-text" 
+        onClick={handleDownload} 
+      >
+        <i className="pi pi-download" ></i>
+      </Button>
+      
+    );
+  };
 
   return (
     <>
@@ -190,6 +263,11 @@ export default function StatisticsPage() {
             currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
             header={header}
           >
+            <Column
+              header="Download"
+              body={downloadTemplate}
+              style={{ minWidth: "5rem" }}
+            ></Column>
             <Column
               field="name"
               header="Name"
