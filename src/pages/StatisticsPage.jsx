@@ -153,7 +153,10 @@ export default function StatisticsPage() {
           const data = response.data.map((item) => {
             return { ...item, created_at: new Date(item.created_at) };
           });
+          console.log(data);
+
           const userData = data.filter(item => item.created_by === userId)
+
           setAnalysisData(userData);
         });
       } else {
@@ -161,7 +164,9 @@ export default function StatisticsPage() {
           const data = response.data.map((item) => {
             return { ...item, created_at: new Date(item.created_at) };
           });
+          console.log(data);
           const userData = data.filter(item => item.created_by === userId)
+          console.log(userData);
           setAnalysisData(userData);
 
         });
@@ -181,7 +186,7 @@ export default function StatisticsPage() {
           const data = response.data.map((item) => {
             return { ...item, created_at: new Date(item.created_at) };
           });
-
+          console.log(data);
           setAnalysisData(data);
         });
       }
@@ -189,48 +194,67 @@ export default function StatisticsPage() {
     }
   }, [statisticType]);
 
+
+
   const downloadTemplate = (rowData) => {
     const handleDownload = async () => {
       const fileName = rowData.name // Tên tệp bạn muốn tải xuống
       console.log(fileName);
-        const webName = 'KMA_SEC'; // Tên thư mục trên HDFS hoặc tên bạn đã sử dụng
+      const webName = 'KMA_SEC'; // Tên thư mục trên HDFS hoặc tên bạn đã sử dụng
 
-        try {
-            const response = await fetch(`${BASE_URL}/api/v1/android/download?file_name=${fileName}&web_name=${webName}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
+      try {
+        const response = await fetch(`${BASE_URL}/api/v1/android/download?file_name=${fileName}&web_name=${webName}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }).then((response) => {
+          // Tạo một URL từ Blob và tải xuống tệp
 
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
 
-            // Tạo một URL từ Blob và tải xuống tệp
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName; // Tên tệp sẽ được tải xuống
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
-        } catch (error) {
-            console.error('Error during download:', error);
+          const blob =  response.blob(); // Nhận dữ liệu dưới dạng blob
+          const url = window.URL.createObjectURL(blob); // Tạo URL cho blob
+          const a = document.createElement('a'); // Tạo thẻ <a>
+          a.style.display = 'none'; // Ẩn thẻ <a>
+          a.href = url; // Gán URL cho thẻ <a>
+          a.download = 'filename.ext'; // Tên file khi tải về
+          document.body.appendChild(a); // Thêm thẻ <a> vào body
+          a.click(); // Bắt đầu tải file
+          window.URL.revokeObjectURL(url); // Giải phóng URL
+          document.body.removeChild(a); // Xóa thẻ <a> khỏi body
+          toast.current.show({
+            severity: "success",
+            summary: "Success",
+            detail: "Download successfully!",
+          });
+        })
+        .catch((error)=>{
+          toast.current.show({
+            severity: "error",
+            summary: "Failure",
+            detail: error,
+          });
+        })
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
         }
+
+
+      } catch (error) {
+        console.error('Error during download:', error);
+      }
       console.log(`Downloading file for ${rowData.name}`);
     };
-  
+
     return (
-      <Button 
-        className="p-button-text" 
-        onClick={handleDownload} 
+      <Button
+        className="p-button-text"
+        onClick={handleDownload}
       >
         <i className="pi pi-download" ></i>
       </Button>
-      
+
     );
   };
 
