@@ -79,9 +79,12 @@ export async function getAndroidAnalysis(page =1, limit) {
     return response.json();
 }
 
-export async function getWindowAnalysis(page = 1, limit = 200) {
-    const params = { page: page, limit: limit };
+export async function getWindowAnalysis(page = 1, limit ) {
+    const params = { page: page };
     const url = new URL(`${BASE_URL}/api/v1/windows/applications`);
+    if (limit !== undefined) {
+        params.limit = limit;
+    }
     let response;
 
     Object.keys(params).forEach((key) =>
