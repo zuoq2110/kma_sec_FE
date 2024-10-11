@@ -1,14 +1,15 @@
-import DefaultLayout from "../layout/DefaultLayout";
-import AnalyzePage from "../pages/AnalyzePage";
-import AndroidAnalyzeDetail from "../pages/AndroidAnalyzeDetail";
-import LoginPage from "../pages/Login";
-import NotFoundPage from "../pages/NotFoundPage";
-import Register from "../pages/Register";
-import WindowAnalyzeDetail from "../pages/WindowAnalyzeDetail";
+import DefaultLayout from '../layout/DefaultLayout'
+import AnalyzePage from '../pages/AnalyzePage'
+import AndroidAnalyzeDetail from '../pages/AndroidAnalyzeDetail'
+import LoginPage from '../pages/Login'
+import NotFoundPage from '../pages/NotFoundPage'
+import PDFAnalyzeDetail from '../pages/PdfAnalyzeDetail'
+import Register from '../pages/Register'
+import WindowAnalyzeDetail from '../pages/WindowAnalyzeDetail'
 
 export const defaultRoutes = [
   {
-    path: "/",
+    path: '/',
     element: (
       <DefaultLayout>
         <AnalyzePage />
@@ -16,15 +17,15 @@ export const defaultRoutes = [
     ),
   },
   {
-    path: "/login",
+    path: '/login',
     element: <LoginPage />,
   },
   {
-    path: "/register",
+    path: '/register',
     element: <Register />,
   },
   {
-    path: "/analyze/",
+    path: '/analyze/',
     element: (
       <DefaultLayout>
         <AnalyzePage />
@@ -32,7 +33,7 @@ export const defaultRoutes = [
     ),
   },
   {
-    path: "/analyze/android/:id",
+    path: '/analyze/android/:id',
     element: (
       <DefaultLayout>
         <AndroidAnalyzeDetail />
@@ -40,7 +41,7 @@ export const defaultRoutes = [
     ),
   },
   {
-    path: "/analyze/windows/:id",
+    path: '/analyze/windows/:id',
     element: (
       <DefaultLayout>
         <WindowAnalyzeDetail />
@@ -48,7 +49,15 @@ export const defaultRoutes = [
     ),
   },
   {
-    path: "*",
+    path: '/analyze/pdf/:id',
+    element: (
+      <DefaultLayout>
+        <PDFAnalyzeDetail />
+      </DefaultLayout>
+    ),
+  },
+  {
+    path: '*',
     element: <NotFoundPage />,
   },
-];
+]

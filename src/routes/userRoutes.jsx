@@ -1,15 +1,16 @@
-import DefaultLayout from "../layout/DefaultLayout";
-import AnalyzePage from "../pages/AnalyzePage";
-import AndroidAnalyzeDetail from "../pages/AndroidAnalyzeDetail";
-import LoginPage from "../pages/Login";
-import NotFoundPage from "../pages/NotFoundPage";
-import Register from "../pages/Register";
-import StatisticsPage from "../pages/StatisticsPage";
-import WindowAnalyzeDetail from "../pages/WindowAnalyzeDetail";
+import DefaultLayout from '../layout/DefaultLayout'
+import AnalyzePage from '../pages/AnalyzePage'
+import AndroidAnalyzeDetail from '../pages/AndroidAnalyzeDetail'
+import LoginPage from '../pages/Login'
+import NotFoundPage from '../pages/NotFoundPage'
+import PDFAnalyzeDetail from '../pages/PdfAnalyzeDetail'
+import Register from '../pages/Register'
+import StatisticsPage from '../pages/StatisticsPage'
+import WindowAnalyzeDetail from '../pages/WindowAnalyzeDetail'
 
 export const userRoutes = [
   {
-    path: "/",
+    path: '/',
     element: (
       <DefaultLayout>
         <AnalyzePage />
@@ -17,15 +18,15 @@ export const userRoutes = [
     ),
   },
   {
-    path: "/login",
+    path: '/login',
     element: <LoginPage />,
   },
   {
-    path: "/register",
+    path: '/register',
     element: <Register />,
   },
   {
-    path: "/analyze/",
+    path: '/analyze/',
     element: (
       <DefaultLayout>
         <AnalyzePage />
@@ -33,7 +34,7 @@ export const userRoutes = [
     ),
   },
   {
-    path: "/statistics/APK/:id",
+    path: '/statistics/APK/:id',
     element: (
       <DefaultLayout>
         <AndroidAnalyzeDetail />
@@ -41,7 +42,7 @@ export const userRoutes = [
     ),
   },
   {
-    path: "/statistics/PE/:id",
+    path: '/statistics/PE/:id',
     element: (
       <DefaultLayout>
         <WindowAnalyzeDetail />
@@ -49,7 +50,15 @@ export const userRoutes = [
     ),
   },
   {
-    path: "/statistics/APK",
+    path: '/statistics/PDF/:id',
+    element: (
+      <DefaultLayout>
+        <PDFAnalyzeDetail />
+      </DefaultLayout>
+    ),
+  },
+  {
+    path: '/statistics/APK',
     element: (
       <DefaultLayout>
         <StatisticsPage />
@@ -57,7 +66,7 @@ export const userRoutes = [
     ),
   },
   {
-    path: "/statistics/PE",
+    path: '/statistics/PE',
     element: (
       <DefaultLayout>
         <StatisticsPage />
@@ -65,7 +74,15 @@ export const userRoutes = [
     ),
   },
   {
-    path: "/analyze/android/:id",
+    path: '/statistics/PDF',
+    element: (
+      <DefaultLayout>
+        <StatisticsPage />
+      </DefaultLayout>
+    ),
+  },
+  {
+    path: '/analyze/android/:id',
     element: (
       <DefaultLayout>
         <AndroidAnalyzeDetail />
@@ -73,7 +90,7 @@ export const userRoutes = [
     ),
   },
   {
-    path: "/analyze/windows/:id",
+    path: '/analyze/windows/:id',
     element: (
       <DefaultLayout>
         <WindowAnalyzeDetail />
@@ -81,7 +98,15 @@ export const userRoutes = [
     ),
   },
   {
-    path: "*",
+    path: '/analyze/PDF/:id',
+    element: (
+      <DefaultLayout>
+        <PDFAnalyzeDetail />
+      </DefaultLayout>
+    ),
+  },
+  {
+    path: '*',
     element: <NotFoundPage />,
   },
-];
+]

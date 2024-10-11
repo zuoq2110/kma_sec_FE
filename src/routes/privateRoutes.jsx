@@ -1,19 +1,18 @@
-import DefaultLayout from "../layout/DefaultLayout.jsx";
-import AnalyzePage from "../pages/AnalyzePage.jsx";
-import AndroidAnalyzeDetail from "../pages/AndroidAnalyzeDetail.jsx";
-import LoginPage from "../pages/Login.jsx";
-import ModelDetailsPage from "../pages/ModelDetailsPage.jsx";
-import ModelsPage from "../pages/ModelsPage.jsx";
-import NotFoundPage from "../pages/NotFoundPage.jsx";
-import Register from "../pages/Register.jsx";
-import StatisticsPage from "../pages/StatisticsPage.jsx";
-import Visualization from "../pages/Visualization.jsx";
-import WindowAnalyzeDetail from "../pages/WindowAnalyzeDetail.jsx";
-
+import DefaultLayout from '../layout/DefaultLayout.jsx'
+import AnalyzePage from '../pages/AnalyzePage.jsx'
+import AndroidAnalyzeDetail from '../pages/AndroidAnalyzeDetail.jsx'
+import LoginPage from '../pages/Login.jsx'
+import ModelDetailsPage from '../pages/ModelDetailsPage.jsx'
+import ModelsPage from '../pages/ModelsPage.jsx'
+import NotFoundPage from '../pages/NotFoundPage.jsx'
+import Register from '../pages/Register.jsx'
+import StatisticsPage from '../pages/StatisticsPage.jsx'
+import Visualization from '../pages/Visualization.jsx'
+import WindowAnalyzeDetail from '../pages/WindowAnalyzeDetail.jsx'
 
 export const privateRoutes = [
   {
-    path: "/",
+    path: '/',
     element: (
       <DefaultLayout>
         <AnalyzePage />
@@ -21,7 +20,7 @@ export const privateRoutes = [
     ),
   },
   {
-    path: "/analyze",
+    path: '/analyze',
     element: (
       <DefaultLayout>
         <AnalyzePage />
@@ -30,7 +29,7 @@ export const privateRoutes = [
   },
   // analyze file
   {
-    path: "/analyze/android/:id",
+    path: '/analyze/android/:id',
     element: (
       <DefaultLayout>
         <AndroidAnalyzeDetail />
@@ -38,7 +37,7 @@ export const privateRoutes = [
     ),
   },
   {
-    path: "/analyze/windows/:id",
+    path: '/analyze/windows/:id',
     element: (
       <DefaultLayout>
         <WindowAnalyzeDetail />
@@ -47,7 +46,7 @@ export const privateRoutes = [
   },
   // Statistic to analyze page
   {
-    path: "/statistics/APK/:id",
+    path: '/statistics/APK/:id',
     element: (
       <DefaultLayout>
         <AndroidAnalyzeDetail />
@@ -55,7 +54,7 @@ export const privateRoutes = [
     ),
   },
   {
-    path: "/statistics/PE/:id",
+    path: '/statistics/PE/:id',
     element: (
       <DefaultLayout>
         <WindowAnalyzeDetail />
@@ -64,7 +63,7 @@ export const privateRoutes = [
   },
   // Models
   {
-    path: "/models/PE",
+    path: '/models/PE',
     element: (
       <DefaultLayout>
         <ModelsPage />
@@ -72,7 +71,7 @@ export const privateRoutes = [
     ),
   },
   {
-    path: "/models/APK",
+    path: '/models/APK',
     element: (
       <DefaultLayout>
         <ModelsPage />
@@ -81,7 +80,7 @@ export const privateRoutes = [
   },
   // Models detail
   {
-    path: "/models/:id",
+    path: '/models/:id',
     element: (
       <DefaultLayout>
         <ModelDetailsPage />
@@ -90,16 +89,16 @@ export const privateRoutes = [
   },
   //login
   {
-    path: "/login",
+    path: '/login',
     element: <LoginPage />,
   },
   {
-    path: "/register",
+    path: '/register',
     element: <Register />,
   },
   // Statistic Page
   {
-    path: "/statistics/APK",
+    path: '/statistics/APK',
     element: (
       <DefaultLayout>
         <StatisticsPage />
@@ -107,7 +106,7 @@ export const privateRoutes = [
     ),
   },
   {
-    path: "/statistics/PE",
+    path: '/statistics/PE',
     element: (
       <DefaultLayout>
         <StatisticsPage />
@@ -115,7 +114,15 @@ export const privateRoutes = [
     ),
   },
   {
-    path: "/visualization/APK",
+    path: '/statistics/PDF',
+    element: (
+      <DefaultLayout>
+        <StatisticsPage />
+      </DefaultLayout>
+    ),
+  },
+  {
+    path: '/visualization/APK',
     element: (
       <DefaultLayout>
         <Visualization />
@@ -123,7 +130,7 @@ export const privateRoutes = [
     ),
   },
   {
-    path: "/visualization/PE",
+    path: '/visualization/PE',
     element: (
       <DefaultLayout>
         <Visualization />
@@ -131,7 +138,15 @@ export const privateRoutes = [
     ),
   },
   {
-    path: "*",
+    path: '/visualization/PDF',
+    element: (
+      <DefaultLayout>
+        <Visualization />
+      </DefaultLayout>
+    ),
+  },
+  {
+    path: '*',
     element: <NotFoundPage />,
   },
-];
+]

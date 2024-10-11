@@ -1,31 +1,32 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Toast } from "primereact/toast";
-import { BreadCrumb } from "primereact/breadcrumb";
-import { Column } from "primereact/column";
-import { DataTable } from "primereact/datatable";
-import { Divider } from "primereact/divider";
-import { InputText } from "primereact/inputtext";
-import { Dropdown } from "primereact/dropdown";
-import { Calendar } from "primereact/calendar";
-import { FilterMatchMode, FilterOperator } from "primereact/api";
-import moment from "moment";
+import React, { useContext, useEffect, useRef, useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
+import { Toast } from 'primereact/toast'
+import { BreadCrumb } from 'primereact/breadcrumb'
+import { Column } from 'primereact/column'
+import { DataTable } from 'primereact/datatable'
+import { Divider } from 'primereact/divider'
+import { InputText } from 'primereact/inputtext'
+import { Dropdown } from 'primereact/dropdown'
+import { Calendar } from 'primereact/calendar'
+import { FilterMatchMode, FilterOperator } from 'primereact/api'
+import moment from 'moment'
 import {
   BASE_URL,
   getAndroidAnalysis,
   getWindowAnalysis,
-} from "../services/kSecurityService";
-import { DataContext } from "../context/dataContext";
-import { Button } from "primereact/button";
+  getPdfAnalysis,
+} from '../services/kSecurityService'
+import { DataContext } from '../context/dataContext'
+import { Button } from 'primereact/button'
 
 export default function StatisticsPage() {
-  const [analysisData, setAnalysisData] = useState(null);
-  const [globalFilter, setGlobalFilter] = useState("");
-  const [filters, setFilters] = useState(null);
-  const toast = useRef(null);
-  const location = useLocation();
-  const path = location.pathname;
-  const statisticType = path.replace("/statistics/", "").trim();
+  const [analysisData, setAnalysisData] = useState(null)
+  const [globalFilter, setGlobalFilter] = useState('')
+  const [filters, setFilters] = useState(null)
+  const toast = useRef(null)
+  const location = useLocation()
+  const path = location.pathname
+  const statisticType = path.replace('/statistics/', '').trim()
   const { isAdmin } = useContext(DataContext)
 
   const iconItemTemplate = (item, options) => {
@@ -33,7 +34,7 @@ export default function StatisticsPage() {
       <Link
         className={options.className}
         to={item.url}
-        style={{ color: "#495057" }}
+        style={{ color: '#495057' }}
       >
         {item.icon ? (
           <span className={item.icon}></span>
@@ -41,17 +42,17 @@ export default function StatisticsPage() {
           <span>{item.label}</span>
         )}
       </Link>
-    );
-  };
+    )
+  }
 
   const onGlobalFilterChange = (event) => {
-    const value = event.target.value;
-    let _filters = { ...filters };
+    const value = event.target.value
+    let _filters = { ...filters }
 
-    _filters["global"].value = value;
-    setFilters(_filters);
-    setGlobalFilter(value);
-  };
+    _filters['global'].value = value
+    setFilters(_filters)
+    setGlobalFilter(value)
+  }
 
   const header = (
     <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
@@ -65,11 +66,11 @@ export default function StatisticsPage() {
         />
       </span>
     </div>
-  );
+  )
   const idTemplate = (rawData) => {
     return (
       <>
-        {statisticType === "APK" ? (
+        {/* {statisticType === "APK" ? (
           <Link
             to={`/statistics/APK/${rawData.id}`}
             style={{ textDecoration: "none", color: "var(--primary-color)" }}
@@ -83,19 +84,39 @@ export default function StatisticsPage() {
           >
             {rawData.md5}
           </Link>
+        )} */}
+        {statisticType === 'APK' ? (
+          <Link
+            to={`/statistics/APK/${rawData.id}`}
+            style={{ textDecoration: 'none', color: 'var(--primary-color)' }}
+          >
+            {rawData.name}
+          </Link>
+        ) : statisticType === 'PDF' ? (
+          <Link
+            to={`/statistics/PDF/${rawData.id}`}
+            style={{ textDecoration: 'none', color: 'var(--primary-color)' }}
+          >
+            {rawData.title}
+          </Link>
+        ) : (
+          <Link
+            to={`/statistics/PE/${rawData.id}`}
+            style={{ textDecoration: 'none', color: 'var(--primary-color)' }}
+          >
+            {rawData.md5}
+          </Link>
         )}
       </>
-    );
-  };
+    )
+  }
 
   const typeFilterElement = (options) => {
     const typeItemTemplate = (option) => {
-      return (
-        <span className={`customer-badge status-${option}`}>{option}</span>
-      );
-    };
+      return <span className={`customer-badge status-${option}`}>{option}</span>
+    }
 
-    const types = analysisData?.map((element) => element["malware_type"]) ?? [];
+    const types = analysisData?.map((element) => element['malware_type']) ?? []
 
     return (
       <Dropdown
@@ -108,15 +129,15 @@ export default function StatisticsPage() {
         showClear
         filterMatchMode="equals"
       />
-    );
-  };
+    )
+  }
 
   const createdDateTemplate = (rawData) => {
-    const data = moment(rawData.created_at).format("YYYY-MM-DD HH:mm:ss");
-    const date = moment.utc(data).toDate();
+    const data = moment(rawData.created_at).format('YYYY-MM-DD HH:mm:ss')
+    const date = moment.utc(data).toDate()
 
-    return moment(date).local().format("DD/MM/YYYY HH:mm:ss");
-  };
+    return moment(date).local().format('DD/MM/YYYY HH:mm:ss')
+  }
   const dateFilterTemplate = (options) => {
     return (
       <Calendar
@@ -126,11 +147,11 @@ export default function StatisticsPage() {
         placeholder="mm/dd/yyyy"
         mask="99/99/9999"
       />
-    );
-  };
+    )
+  }
 
-  const home = { icon: "pi pi-home", url: "/", template: iconItemTemplate };
-  const items = [{ label: "Statistics" }, { label: `${statisticType}` }];
+  const home = { icon: 'pi pi-home', url: '/', template: iconItemTemplate }
+  const items = [{ label: 'Statistics' }, { label: `${statisticType}` }]
 
   useEffect(() => {
     const _filters = {
@@ -143,120 +164,130 @@ export default function StatisticsPage() {
         operator: FilterOperator.AND,
         constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }],
       },
-    };
+    }
 
-    setFilters(_filters);
+    setFilters(_filters)
     const userId = localStorage.getItem('id')
     if (isAdmin === false) {
-      if (statisticType === "APK") {
+      if (statisticType === 'APK') {
         getAndroidAnalysis().then((response) => {
           const data = response.data.map((item) => {
-            return { ...item, created_at: new Date(item.created_at) };
-          });
-          console.log(data);
+            return { ...item, created_at: new Date(item.created_at) }
+          })
+          console.log(data)
 
-          const userData = data.filter(item => item.created_by === userId)
+          const userData = data.filter((item) => item.created_by === userId)
 
-          setAnalysisData(userData);
-        });
+          setAnalysisData(userData)
+        })
+      } else if (statisticType === 'PDF') {
+        getPdfAnalysis().then((response) => {
+          const data = response.data.map((item) => {
+            return { ...item, created_at: new Date(item.created_at) }
+          })
+          console.log(data)
+          const userData = data.filter((item) => item.created_by === userId)
+          console.log(userData)
+          setAnalysisData(userData)
+        })
       } else {
         getWindowAnalysis().then((response) => {
           const data = response.data.map((item) => {
-            return { ...item, created_at: new Date(item.created_at) };
-          });
-          console.log(data);
-          const userData = data.filter(item => item.created_by === userId)
-          console.log(userData);
-          setAnalysisData(userData);
-
-        });
+            return { ...item, created_at: new Date(item.created_at) }
+          })
+          console.log(data)
+          const userData = data.filter((item) => item.created_by === userId)
+          console.log(userData)
+          setAnalysisData(userData)
+        })
       }
-    }
-    else {
-      if (statisticType === "APK") {
+    } else {
+      if (statisticType === 'APK') {
         getAndroidAnalysis().then((response) => {
           const data = response.data.map((item) => {
-            return { ...item, created_at: new Date(item.created_at) };
-          });
-          console.log(data);
-          setAnalysisData(data);
-        });
+            return { ...item, created_at: new Date(item.created_at) }
+          })
+          console.log(data)
+          setAnalysisData(data)
+        })
+      } else if (statisticType === 'PDF') {
+        getPdfAnalysis().then((response) => {
+          const data = response.data.map((item) => {
+            return { ...item, created_at: new Date(item.created_at) }
+          })
+          console.log(data)
+          setAnalysisData(data)
+        })
       } else {
         getWindowAnalysis().then((response) => {
           const data = response.data.map((item) => {
-            return { ...item, created_at: new Date(item.created_at) };
-          });
-          console.log(data);
-          setAnalysisData(data);
-        });
+            return { ...item, created_at: new Date(item.created_at) }
+          })
+          console.log(data)
+          setAnalysisData(data)
+        })
       }
-
     }
-  }, [statisticType]);
-
-
+  }, [statisticType])
 
   const downloadTemplate = (rowData) => {
     const handleDownload = async () => {
       const fileName = rowData.name // Tên tệp bạn muốn tải xuống
-      console.log(fileName);
-      const webName = 'KMA_SEC'; // Tên thư mục trên HDFS hoặc tên bạn đã sử dụng
+      console.log(fileName)
+      const webName = 'KMA_SEC' // Tên thư mục trên HDFS hoặc tên bạn đã sử dụng
 
       try {
-        const response = await fetch(`${BASE_URL}/api/v1/android/download?file_name=${fileName}&web_name=${webName}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }).then((response) => {
-          // Tạo một URL từ Blob và tải xuống tệp
+        const response = await fetch(
+          `${BASE_URL}/api/v1/android/download?file_name=${fileName}&web_name=${webName}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+          .then((response) => {
+            // Tạo một URL từ Blob và tải xuống tệp
 
-
-          const blob =  response.blob(); // Nhận dữ liệu dưới dạng blob
-          const url = window.URL.createObjectURL(blob); // Tạo URL cho blob
-          const a = document.createElement('a'); // Tạo thẻ <a>
-          a.style.display = 'none'; // Ẩn thẻ <a>
-          a.href = url; // Gán URL cho thẻ <a>
-          a.download = 'filename.ext'; // Tên file khi tải về
-          document.body.appendChild(a); // Thêm thẻ <a> vào body
-          a.click(); // Bắt đầu tải file
-          window.URL.revokeObjectURL(url); // Giải phóng URL
-          document.body.removeChild(a); // Xóa thẻ <a> khỏi body
-          toast.current.show({
-            severity: "success",
-            summary: "Success",
-            detail: "Download successfully!",
-          });
-        })
-        .catch((error)=>{
-          toast.current.show({
-            severity: "error",
-            summary: "Failure",
-            detail: error,
-          });
-        })
+            const blob = response.blob() // Nhận dữ liệu dưới dạng blob
+            const url = window.URL.createObjectURL(blob) // Tạo URL cho blob
+            const a = document.createElement('a') // Tạo thẻ <a>
+            a.style.display = 'none' // Ẩn thẻ <a>
+            a.href = url // Gán URL cho thẻ <a>
+            a.download = 'filename.ext' // Tên file khi tải về
+            document.body.appendChild(a) // Thêm thẻ <a> vào body
+            a.click() // Bắt đầu tải file
+            window.URL.revokeObjectURL(url) // Giải phóng URL
+            document.body.removeChild(a) // Xóa thẻ <a> khỏi body
+            toast.current.show({
+              severity: 'success',
+              summary: 'Success',
+              detail: 'Download successfully!',
+            })
+          })
+          .catch((error) => {
+            toast.current.show({
+              severity: 'error',
+              summary: 'Failure',
+              detail: error,
+            })
+          })
 
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error('Network response was not ok')
         }
-
-
       } catch (error) {
-        console.error('Error during download:', error);
+        console.error('Error during download:', error)
       }
-      console.log(`Downloading file for ${rowData.name}`);
-    };
+      console.log(`Downloading file for ${rowData.name}`)
+    }
 
     return (
-      <Button
-        className="p-button-text"
-        onClick={handleDownload}
-      >
-        <i className="pi pi-download" ></i>
+      <Button className="p-button-text" onClick={handleDownload}>
+        <i className="pi pi-download"></i>
       </Button>
-
-    );
-  };
+    )
+  }
 
   return (
     <>
@@ -270,12 +301,12 @@ export default function StatisticsPage() {
         <BreadCrumb
           model={items}
           home={home}
-          style={{ background: "transparent", border: 0 }}
+          style={{ background: 'transparent', border: 0 }}
         />
       </div>
 
       <div className="card mb-5">
-        {statisticType === "APK" ? (
+        {statisticType === 'APK' ? (
           <DataTable
             value={analysisData}
             paginator
@@ -290,24 +321,24 @@ export default function StatisticsPage() {
             <Column
               header="Download"
               body={downloadTemplate}
-              style={{ minWidth: "5rem" }}
+              style={{ minWidth: '5rem' }}
             ></Column>
             <Column
               field="name"
               header="Name"
               sortable
               body={idTemplate}
-              style={{ minWidth: "10rem" }}
+              style={{ minWidth: '10rem' }}
             ></Column>
             <Column
               field="package"
               header="Package"
-              style={{ minWidth: "10rem" }}
+              style={{ minWidth: '10rem' }}
             ></Column>
             <Column
               field="malware_type"
               header="Type"
-              style={{ minWidth: "10rem" }}
+              style={{ minWidth: '10rem' }}
               filter
               filterElement={typeFilterElement}
               showAddButton={false}
@@ -317,7 +348,7 @@ export default function StatisticsPage() {
               header="Created Date"
               sortable
               body={createdDateTemplate}
-              style={{ minWidth: "16rem" }}
+              style={{ minWidth: '16rem' }}
               filter
               filterField="created_at"
               dataType="date"
@@ -341,12 +372,12 @@ export default function StatisticsPage() {
               header="MD5"
               sortable
               body={idTemplate}
-              style={{ minWidth: "10rem" }}
+              style={{ minWidth: '10rem' }}
             ></Column>
             <Column
               field="malware_type"
               header="Type"
-              style={{ minWidth: "10rem" }}
+              style={{ minWidth: '10rem' }}
               filter
               filterElement={typeFilterElement}
               showAddButton={false}
@@ -356,7 +387,7 @@ export default function StatisticsPage() {
               header="Created Date"
               sortable
               body={createdDateTemplate}
-              style={{ minWidth: "16rem" }}
+              style={{ minWidth: '16rem' }}
               filter
               filterField="created_at"
               dataType="date"
@@ -366,5 +397,5 @@ export default function StatisticsPage() {
         )}
       </div>
     </>
-  );
+  )
 }
