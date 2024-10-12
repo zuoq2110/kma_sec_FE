@@ -8,7 +8,7 @@ import { ProgressBar } from 'primereact/progressbar'
 import { Button } from 'primereact/button'
 import { Tooltip } from 'primereact/tooltip'
 import { Tag } from 'primereact/tag'
-import { analyze, BASE_URL } from '../services/kSecurityService'
+import { analyze, BASE_URL, getAndroidDetails, getWindowDetails } from '../services/kSecurityService'
 import { getDataAnalyzePage } from '../services/kSecurityService'
 
 const CONTENT_TYPE_APK = 'application/vnd.android.package-archive'
@@ -209,6 +209,7 @@ export default function AnalyzePage() {
     setStoreDataAnalyze(_dataAnalyze)
   }, [])
 
+  const apiUploadFileToDataLake = 'http://192.168.1.103:8086/upload';
   const uploadHandler = async (event) => {
     const file = event.files[0]
     // const type = file.type === CONTENT_TYPE_APK ? 'android' : 'windows'
@@ -221,11 +222,30 @@ export default function AnalyzePage() {
       type = 'windows' // hoặc bạn có thể sử dụng "pe"
     }
     const fileName = file.name
-    let response
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('web_name', 'KMA_SEC1');
+    let response;
+
 
     setProgessState(100)
     try {
       response = await analyze(file, type)
+      // try {
+      //   const response = await fetch(apiUploadFileToDataLake, {
+      //     method: 'POST',
+      //     body: formData,
+      //   });
+
+      //   if (!response.ok) {
+      //     throw new Error('Network response was not ok');
+      //   }
+
+      //   const data = await response.json();
+      //   console.log('File uploaded successfully:', data);
+      // } catch (error) {
+      //   console.error('Error uploading file:', error);
+      // }
     } catch (error) {
       toast.current.show({
         severity: 'error',
@@ -245,19 +265,34 @@ export default function AnalyzePage() {
 
     setTimeout(async () => {
       let id = response.data.analysis_id
-      let dataAnalyzes = storeDataAnalyze ? storeDataAnalyze : []
+      let appName = ''
+      if (type === "android" || type === "windows") {
+        if (type === "android") {
+          const detailResponse = await getAndroidDetails(response.data.analysis_id);
+          console.log(detailResponse);
+          // Cập nhật trực tiếp fileNameApk tại đây
 
-      const existingItemIndex = dataAnalyzes.findIndex(
-        (item) => item.fileName === fileName
-      )
+          appName = detailResponse.data.name
+        } else if (type === "windows") {
+          const detailResponse = await getWindowDetails(response.data.analysis_id);
+          console.log(detailResponse);
+          // Cập nhật trực tiếp fileNameApk tại đây
 
-      if (existingItemIndex !== -1) {
-        dataAnalyzes = [...dataAnalyzes]
-      } else {
-        dataAnalyzes = [...dataAnalyzes, { id: id, fileName: fileName }]
+          appName = detailResponse.data.md5
+        }
+        let dataAnalyzes = storeDataAnalyze ? storeDataAnalyze : []
+
+        const existingItemIndex = dataAnalyzes.findIndex(
+          (item) => item.fileName === fileName
+        )
+
+        if (existingItemIndex !== -1) {
+          dataAnalyzes = [...dataAnalyzes]
+        } else {
+          dataAnalyzes = [...dataAnalyzes, { id: id, fileName: fileName, appName: appName }];
+        }
+        await localStorage.setItem('dataAnalyze', JSON.stringify(dataAnalyzes))
       }
-      await localStorage.setItem('dataAnalyze', JSON.stringify(dataAnalyzes))
-
       navigate(`/analyze/${type}/${id}`)
     }, 1500)
   }

@@ -180,3 +180,9 @@ export const getPdfDetails = async (id) => {
 
   return fetch(url, { method: 'GET' }).then((response) => response.json())
 }
+
+export const getAndroidDetails = async(id) => {
+  const url = `${BASE_URL}/api/v1/android/applications/${id}`;
+
+  return fetch(url, { method: "GET" }).then((response) => response.json());
+};

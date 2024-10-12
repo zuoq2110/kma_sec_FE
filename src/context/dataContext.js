@@ -29,7 +29,7 @@ function DataProvider({ children }) {
       console.log(isAdmin)
     } else {
       setDataUser({ email, password })
-      setIsAdmin(true)
+      setIsAdmin(false)
       console.log(isAdmin)
     }
   }, [])

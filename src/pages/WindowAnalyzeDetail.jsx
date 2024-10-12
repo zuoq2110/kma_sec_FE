@@ -47,6 +47,7 @@ export default function WindowAnalyzeDetail() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  console.log(dataFieldHeader);
 
   function save(analysisWindowDetails) {
     try {

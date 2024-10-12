@@ -15,6 +15,7 @@ import {
   getAndroidAnalysis,
   getWindowAnalysis,
   getPdfAnalysis,
+  getDataAnalyzePage,
 } from '../services/kSecurityService'
 import { DataContext } from '../context/dataContext'
 import { Button } from 'primereact/button'
@@ -68,6 +69,7 @@ export default function StatisticsPage() {
     </div>
   )
   const idTemplate = (rawData) => {
+    console.log(rawData);
     return (
       <>
         {/* {statisticType === "APK" ? (
@@ -97,7 +99,7 @@ export default function StatisticsPage() {
             to={`/statistics/PDF/${rawData.id}`}
             style={{ textDecoration: 'none', color: 'var(--primary-color)' }}
           >
-            {rawData.title}
+            {rawData.name}
           </Link>
         ) : (
           <Link
@@ -231,63 +233,100 @@ export default function StatisticsPage() {
   }, [statisticType])
 
   const downloadTemplate = (rowData) => {
+
+    const webName = 'KMA_SEC1'; // Tên thư mục trên HDFS hoặc tên bạn đã sử dụng
+
     const handleDownload = async () => {
-      const fileName = rowData.name // Tên tệp bạn muốn tải xuống
-      console.log(fileName)
-      const webName = 'KMA_SEC' // Tên thư mục trên HDFS hoặc tên bạn đã sử dụng
+      let _dataAnalyze = getDataAnalyzePage();
+      let dataAnalyzes = _dataAnalyze ? _dataAnalyze : [];
+
+      let fileName = '';
+      if (dataAnalyzes) {
+        if (statisticType === "APK") {
+          const matchingItem = dataAnalyzes.find(item => item.appName === rowData.name);
+          if (matchingItem) {
+            fileName = matchingItem.fileName;
+            console.log('fileName:', fileName);
+          }
+        } else if (statisticType === "PE") {
+          console.log(rowData.md5);
+          const matchingItem = dataAnalyzes.find(item => item.appName === rowData.md5);
+          if (matchingItem) {
+            fileName = matchingItem.fileName;
+            console.log('fileName:', fileName);
+          }
+        }
+        else {
+          console.log(rowData.name);
+          fileName = rowData.name
+        }
+
+      }
+
+      if (!fileName) {
+        console.error('No matching file found');
+        return;
+      }
 
       try {
-        const response = await fetch(
-          `${BASE_URL}/api/v1/android/download?file_name=${fileName}&web_name=${webName}`,
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        )
-          .then((response) => {
-            // Tạo một URL từ Blob và tải xuống tệp
-
-            const blob = response.blob() // Nhận dữ liệu dưới dạng blob
-            const url = window.URL.createObjectURL(blob) // Tạo URL cho blob
-            const a = document.createElement('a') // Tạo thẻ <a>
-            a.style.display = 'none' // Ẩn thẻ <a>
-            a.href = url // Gán URL cho thẻ <a>
-            a.download = 'filename.ext' // Tên file khi tải về
-            document.body.appendChild(a) // Thêm thẻ <a> vào body
-            a.click() // Bắt đầu tải file
-            window.URL.revokeObjectURL(url) // Giải phóng URL
-            document.body.removeChild(a) // Xóa thẻ <a> khỏi body
-            toast.current.show({
-              severity: 'success',
-              summary: 'Success',
-              detail: 'Download successfully!',
-            })
-          })
-          .catch((error) => {
-            toast.current.show({
-              severity: 'error',
-              summary: 'Failure',
-              detail: error,
-            })
-          })
+        console.log(`Attempting to download ${fileName} from ${webName}`);
+        const response = await fetch(`http://192.168.1.103:8086/download1?file_name=${fileName}&web_name=${webName}`);
+        console.log('Fetch response:', response);
 
         if (!response.ok) {
-          throw new Error('Network response was not ok')
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-      } catch (error) {
-        console.error('Error during download:', error)
-      }
-      console.log(`Downloading file for ${rowData.name}`)
-    }
 
+        // const blob = await response.blob();
+        // console.log('Blob created:', blob);
+
+        // const url = window.URL.createObjectURL(blob);
+        // const link = document.createElement('a');
+        // link.href = url;
+        // link.setAttribute('download', fileName);
+        // document.body.appendChild(link);
+        // link.click();
+        // link.remove();
+        // window.URL.revokeObjectURL(url);
+
+        // console.log(`File ${fileName} downloaded successfully`);
+
+        const contentType = response.headers.get('Content-Type');
+        console.log('Content-Type:', contentType);
+
+        const blob = await response.blob();
+        console.log('Blob created:', blob);
+
+        // Tạo một Blob URL với Content-Type
+        const url = window.URL.createObjectURL(new Blob([blob], { type: contentType }));
+
+        // Tạo một link ẩn và kích hoạt click event
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', fileName);
+        link.setAttribute('target', '_blank');
+        document.body.appendChild(link);
+        link.click();
+
+        // Cleanup
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(link);
+
+        console.log(`File ${fileName} download initiated`);
+      } catch (error) {
+        console.error('Error downloading the file:', error);
+      }
+    };
     return (
-      <Button className="p-button-text" onClick={handleDownload}>
-        <i className="pi pi-download"></i>
+      <Button
+        className="p-button-text"
+        onClick={handleDownload}
+      >
+        <i className="pi pi-download" ></i>
       </Button>
-    )
-  }
+
+    );
+  };
 
   return (
     <>
@@ -355,7 +394,7 @@ export default function StatisticsPage() {
               filterElement={dateFilterTemplate}
             ></Column>
           </DataTable>
-        ) : (
+        ) : statisticType === 'PE' ? (
           <DataTable
             value={analysisData}
             paginator
@@ -367,6 +406,11 @@ export default function StatisticsPage() {
             currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
             header={header}
           >
+            <Column
+              header="Download"
+              body={downloadTemplate}
+              style={{ minWidth: '5rem' }}
+            ></Column>
             <Column
               field="md5"
               header="MD5"
@@ -394,7 +438,49 @@ export default function StatisticsPage() {
               filterElement={dateFilterTemplate}
             ></Column>
           </DataTable>
-        )}
+        ) : <DataTable
+          value={analysisData}
+          paginator
+          filters={filters}
+          removableSort
+          rows={10}
+          rowsPerPageOptions={[10, 20, 50, 100]}
+          paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+          header={header}
+        >
+          <Column
+            header="Download"
+            body={downloadTemplate}
+            style={{ minWidth: '5rem' }}
+          ></Column>
+          <Column
+            field="name"
+            header="Name"
+            sortable
+            body={idTemplate}
+            style={{ minWidth: '10rem' }}
+          ></Column>
+          <Column
+            field="malware_type"
+            header="Type"
+            style={{ minWidth: '10rem' }}
+            filter
+            filterElement={typeFilterElement}
+            showAddButton={false}
+          ></Column>
+          <Column
+            field="created_at"
+            header="Created Date"
+            sortable
+            body={createdDateTemplate}
+            style={{ minWidth: '16rem' }}
+            filter
+            filterField="created_at"
+            dataType="date"
+            filterElement={dateFilterTemplate}
+          ></Column>
+        </DataTable>}
       </div>
     </>
   )

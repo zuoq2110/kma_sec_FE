@@ -5,6 +5,7 @@ import LoginPage from '../pages/Login.jsx'
 import ModelDetailsPage from '../pages/ModelDetailsPage.jsx'
 import ModelsPage from '../pages/ModelsPage.jsx'
 import NotFoundPage from '../pages/NotFoundPage.jsx'
+import PDFAnalyzeDetail from '../pages/PdfAnalyzeDetail.jsx'
 import Register from '../pages/Register.jsx'
 import StatisticsPage from '../pages/StatisticsPage.jsx'
 import Visualization from '../pages/Visualization.jsx'
@@ -44,6 +45,14 @@ export const privateRoutes = [
       </DefaultLayout>
     ),
   },
+  {
+    path: '/analyze/pdf/:id',
+    element: (
+      <DefaultLayout>
+        <PDFAnalyzeDetail />
+      </DefaultLayout>
+    ),
+  },
   // Statistic to analyze page
   {
     path: '/statistics/APK/:id',
@@ -61,6 +70,14 @@ export const privateRoutes = [
       </DefaultLayout>
     ),
   },
+  {
+    path: '/statistics/PDF/:id',
+    element: (
+      <DefaultLayout>
+        <PDFAnalyzeDetail />
+      </DefaultLayout>
+    ),
+  },
   // Models
   {
     path: '/models/PE',
@@ -72,6 +89,14 @@ export const privateRoutes = [
   },
   {
     path: '/models/APK',
+    element: (
+      <DefaultLayout>
+        <ModelsPage />
+      </DefaultLayout>
+    ),
+  },
+  {
+    path: '/models/PDF',
     element: (
       <DefaultLayout>
         <ModelsPage />

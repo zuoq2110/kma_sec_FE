@@ -12,25 +12,16 @@ export default function PDFAnalyzeDetail() {
   const toast = useRef(null)
   const [filename, setFilename] = useState(null)
   const [dataPDF, setDataPDF] = useState(null)
+  const [attributes, setAttributes] = useState(null)
 
-  // data response
-  const [dataFieldHeader, setDataFieldHeader] = useState(null)
-  const [dataLibraries, setDataLibraries] = useState(null)
-  const [dataSections, setDataSections] = useState(null)
+
 
   useEffect(() => {
     const analysisPdfId = pathNames.at(-1).trim()
     getPdfDetails(analysisPdfId).then((response) => {
       setDataPDF(response.data)
-      setDataFieldHeader({
-        dos_header: response.data.dos_header,
-        header: response.data.header,
-        optional_header: response.data.optional_header,
-      })
-      setDataLibraries(response.data.libraries)
-      setDataSections(response.data.sections)
+      setAttributes(response.data.attributes)
     })
-
     let _dataAnalyze = getDataAnalyzePage()
     let dataAnalyzes = _dataAnalyze ? _dataAnalyze : []
 
@@ -44,6 +35,7 @@ export default function PDFAnalyzeDetail() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+  console.log(attributes);
 
   function save(analysisPdfDetails) {
     try {
@@ -119,7 +111,7 @@ export default function PDFAnalyzeDetail() {
       </div>
     )
   }
-
+  console.log(dataPDF)
   return (
     <>
       <Toast ref={toast}></Toast>
@@ -145,84 +137,22 @@ export default function PDFAnalyzeDetail() {
 
           <div className="card px-6 mb-5">
             <div className="flex flex-wrap justify-content-between align-items-center mx-3 mt-2 mb-5">
-              <div>
-                <span
-                  className="my-0 font-bold"
-                  style={{ fontSize: '1.25rem' }}
-                >
-                  MD5: {''}
-                </span>
-                <span style={{ fontSize: '1.25rem' }}>{dataPDF.md5}</span>
-              </div>
+              <h4 className="my-0">Malware Type:</h4>
+
               <h4 className="my-0">{dataPDF.malware_type}</h4>
             </div>
-
-            <Divider />
-
-            <h5 className="mx-3 mb-4">Summary</h5>
-            {/* Data field header */}
-            <Accordion multiple>
-              {Object.keys(dataFieldHeader).map((section) => {
-                return (
-                  <AccordionTab
-                    key={section}
-                    header={section
-                      .split('_')
-                      .map(
-                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
-                      )
-                      .join(' ')}
-                  >
-                    {Object.entries(dataPDF[section]).map(([key, value]) => (
-                      <div className="m-0" key={key}>
-                        {itemTemplate([key, value])}
-                      </div>
-                    ))}
-                  </AccordionTab>
-                )
-              })}
-
-              {/* Libraries */}
-              {
-                <AccordionTab header="Libraries">
-                  {dataLibraries.map((item, index) => (
-                    <Accordion key={index} multiple>
-                      <AccordionTab header={item.name}>
-                        {Object.entries(item).map(([key, value]) => {
-                          if (key === 'entries') {
-                            return null
-                          } else {
-                            return (
-                              <div className="m-0" key={key}>
-                                {itemTemplate([key, value])}
-                              </div>
-                            )
-                          }
-                        })}
-                      </AccordionTab>
-                    </Accordion>
-                  ))}
-                </AccordionTab>
-              }
-              {/* Section */}
-              {
-                <AccordionTab header="Section">
-                  {dataSections.map((item, index) => (
-                    <Accordion key={index} multiple>
-                      <AccordionTab header={item.name}>
-                        {Object.entries(item).map(([key, value]) => {
-                          return (
-                            <div className="m-0" key={key}>
-                              {itemTemplate([key, value])}
-                            </div>
-                          )
-                        })}
-                      </AccordionTab>
-                    </Accordion>
-                  ))}
-                </AccordionTab>
-              }
+            <Accordion>
+              <AccordionTab header="Attributes">
+                {Object.entries(attributes).map(([key, value]) => {
+                  return (
+                    <div className="m-0" key={key}>
+                      {itemTemplate([key, value])}
+                    </div>
+                  );
+                })}
+              </AccordionTab>
             </Accordion>
+
           </div>
         </>
       )}
