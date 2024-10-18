@@ -231,21 +231,21 @@ export default function AnalyzePage() {
     setProgessState(100)
     try {
       response = await analyze(file, type)
-      // try {
-      //   const response = await fetch(apiUploadFileToDataLake, {
-      //     method: 'POST',
-      //     body: formData,
-      //   });
+      try {
+        // const response = await fetch(apiUploadFileToDataLake, {
+        //   method: 'POST',
+        //   body: formData,
+        // });
 
-      //   if (!response.ok) {
-      //     throw new Error('Network response was not ok');
-      //   }
+        // if (!response.ok) {
+        //   throw new Error('Network response was not ok');
+        // }
 
-      //   const data = await response.json();
-      //   console.log('File uploaded successfully:', data);
-      // } catch (error) {
-      //   console.error('Error uploading file:', error);
-      // }
+        // const data = await response.json();
+        // console.log('File uploaded successfully:', data);
+      } catch (error) {
+        console.error('Error uploading file:', error);
+      }
     } catch (error) {
       toast.current.show({
         severity: 'error',

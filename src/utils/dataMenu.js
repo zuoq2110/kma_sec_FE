@@ -113,6 +113,11 @@ export const dataMenusUser = [
             icon: 'pi pi-fw pi-desktop',
             to: '/statistics/PE',
           },
+          {
+            label: 'PDF',
+            icon: 'pi pi-fw pi-desktop',
+            to: '/statistics/PDF',
+          },
         ],
       },
     ],
